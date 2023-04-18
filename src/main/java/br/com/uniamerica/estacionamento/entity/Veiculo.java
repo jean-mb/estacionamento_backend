@@ -19,7 +19,8 @@ public class Veiculo extends AbstractEntity {
     @Column(name = "tipo", nullable = false, length = 6)
     private Tipo tipo;
     @Getter @Setter
-    @Column(name = "modelo", nullable = false)
+    @ManyToOne
+    @JoinColumn(nullable = false)
     private Modelo modelo;
     @Getter @Setter
     @Column(name = "ano")
