@@ -36,7 +36,7 @@ public class ModeloController {
             this.modeloRepository.save(modelo);
             return ResponseEntity.ok("Registro feito com sucesso");
         }catch (Exception e){
-            return ResponseEntity.badRequest().body(e);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
     /*
@@ -61,5 +61,18 @@ public class ModeloController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-//    @DeleteMapping
+    @DeleteMapping
+    public ResponseEntity<?> deletar(
+            @RequestParam("id") final Long id
+    ){
+        try{
+            final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
+            assert modeloBanco != null;
+            this.modeloRepository.delete(modeloBanco);
+            return ResponseEntity.ok("Registro atualizado com sucesso");
+
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }
