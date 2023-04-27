@@ -10,6 +10,8 @@ import org.hibernate.envers.Audited;
 
 import java.time.LocalTime;
 @Entity
+@Audited
+@AuditTable(value = "condutores_audit", schema = "audit")
 @Table(name = "condutores", schema = "public")
 public class Condutor extends AbstractEntity {
     @Getter @Setter
