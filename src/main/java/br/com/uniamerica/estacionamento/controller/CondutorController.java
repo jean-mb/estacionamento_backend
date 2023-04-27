@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Condutor;
+import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.CondutorRepository;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.hibernate.internal.util.ExceptionHelper;
@@ -26,9 +27,14 @@ public class CondutorController {
         return condutor == null ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutor);
     }
 
-    @GetMapping("/lista ")
+    @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
         return ResponseEntity.ok(this.condutorRepository.findAll());
+    }
+
+    @GetMapping("/lista/ativos")
+    public ResponseEntity<?> listaCompletaAtivos(){
+        return ResponseEntity.ok(this.condutorRepository.findAllAtivo());
     }
 
     @PostMapping
@@ -42,4 +48,39 @@ public class CondutorController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping
+    public ResponseEntity<?> editar(
+            @RequestParam("id") final Long id,
+            @RequestBody final Condutor condutor
+    ){
+        try{
+            final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
+
+            if (condutorBanco == null || !condutorBanco.getId().equals(condutor.getId())) {
+                throw new RuntimeException("Não foi possivel identificar o condutor informado: \n" + condutorBanco.getId() + "\n" + condutor.getId());
+            }
+
+            this.condutorRepository.save(condutor);
+            return ResponseEntity.ok("Registro atualizado com sucesso");
+
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @DeleteMapping
+    public ResponseEntity<?> deletar(
+            @RequestParam("id") final Long id
+    ){
+        try{
+            final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
+            assert condutorBanco != null;
+            this.condutorRepository.delete(condutorBanco);
+            return ResponseEntity.ok("Registro apagado com sucesso!");
+
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
