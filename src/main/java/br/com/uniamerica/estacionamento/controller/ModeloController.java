@@ -25,7 +25,7 @@ public class ModeloController {
         return modelo == null ? ResponseEntity.badRequest().body("Nenhum modelo encontrado") : ResponseEntity.ok(modelo);
     }
 
-    @GetMapping("/lista ")
+    @GetMapping("/lista")
     public ResponseEntity<?> listaCompleta(){
         return ResponseEntity.ok(this.modeloRepository.findAll());
     }
@@ -39,9 +39,12 @@ public class ModeloController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    /*
-    * Sempre recebe parametro
-    */
+
+    @GetMapping("/lista/ativos")
+    public ResponseEntity<?> listarAtivos(){
+        return ResponseEntity.ok(this.modeloRepository.findAllAtivo());
+    }
+
     @PutMapping
     public ResponseEntity<?> editar(
             @RequestParam("id") final Long id,
@@ -51,11 +54,11 @@ public class ModeloController {
             final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
 
             if (modelo == null || !modeloBanco.getId().equals(modelo.getId())) {
-                throw new RuntimeException("Não foi possivel identificar o registro informado");
+                throw new RuntimeException("Não foi possivel identificar o modelo informado");
             }
 
             this.modeloRepository.save(modelo);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
+            return ResponseEntity.ok("Modelo atualizado com sucesso");
 
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -69,7 +72,7 @@ public class ModeloController {
             final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
             assert modeloBanco != null;
             this.modeloRepository.delete(modeloBanco);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
+            return ResponseEntity.ok("Modelo deletado com sucesso");
 
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
