@@ -19,7 +19,7 @@ public class MarcaController {
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
         final Marca marca =  this.marcaRepository.findById(id).orElse(null);
-        return marca == null ? ResponseEntity.badRequest().body("Nenhum modelo encontrado") : ResponseEntity.ok(marca);
+        return marca == null ? ResponseEntity.badRequest().body("Nenhuma marca encontrada") : ResponseEntity.ok(marca);
     }
 
     @GetMapping("/lista")

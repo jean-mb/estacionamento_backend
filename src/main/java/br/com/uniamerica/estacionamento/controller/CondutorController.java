@@ -9,8 +9,6 @@ import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
-
 @Controller
 @RequestMapping(value = "/api/condutor")
 public class CondutorController {
