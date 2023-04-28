@@ -2,7 +2,7 @@ package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
-import org.apache.coyote.Response;
+import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +17,9 @@ public class ModeloController {
     * */
     @Autowired
     private ModeloRepository modeloRepository;
+
+    @Autowired
+    private VeiculoRepository veiculoRepository;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -65,17 +68,25 @@ public class ModeloController {
         }
     }
     @DeleteMapping
-    public ResponseEntity<?> deletar(
+    public ResponseEntity<?> desativarCondutor(
             @RequestParam("id") final Long id
     ){
         try{
             final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
-            assert modeloBanco != null;
-            this.modeloRepository.delete(modeloBanco);
-            return ResponseEntity.ok("Modelo deletado com sucesso");
-
+            if(modeloBanco == null){
+                throw new RuntimeException("Modelo não encontrado");
+            }
+            if(!this.veiculoRepository.findByModeloId(id).isEmpty()){
+                modeloBanco.setAtivo(false);
+                this.modeloRepository.save(modeloBanco);
+                return ResponseEntity.ok("Modelo desativado com sucesso!");
+            }else{
+                this.modeloRepository.delete(modeloBanco);
+                return ResponseEntity.ok("Modelo apagado com sucesso!");
+            }
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
