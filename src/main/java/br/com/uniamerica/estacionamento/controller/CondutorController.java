@@ -3,6 +3,7 @@ package br.com.uniamerica.estacionamento.controller;
 import br.com.uniamerica.estacionamento.entity.Condutor;
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.CondutorRepository;
+import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
 import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.hibernate.internal.util.ExceptionHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public class CondutorController {
     @Autowired
     private CondutorRepository condutorRepository;
 
+    @Autowired
+    private MovimentacaoRepository movimentacaoRepository;
+
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
@@ -28,17 +32,17 @@ public class CondutorController {
     }
 
     @GetMapping("/lista")
-    public ResponseEntity<?> listaCompleta(){
+    public ResponseEntity<?> listarAll(){
         return ResponseEntity.ok(this.condutorRepository.findAll());
     }
 
     @GetMapping("/lista/ativos")
-    public ResponseEntity<?> listaCompletaAtivos(){
+    public ResponseEntity<?> listarAtivos(){
         return ResponseEntity.ok(this.condutorRepository.findAllAtivo());
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Condutor condutor){
+    public ResponseEntity<?> cadastraCondutorr(@RequestBody final Condutor condutor){
         try{
             this.condutorRepository.save(condutor);
             return ResponseEntity.ok("Registro feito com sucesso");
@@ -50,7 +54,7 @@ public class CondutorController {
     }
 
     @PutMapping
-    public ResponseEntity<?> editar(
+    public ResponseEntity<?> editarCondutor(
             @RequestParam("id") final Long id,
             @RequestBody final Condutor condutor
     ){
@@ -69,15 +73,22 @@ public class CondutorController {
         }
     }
     @DeleteMapping
-    public ResponseEntity<?> deletar(
+    public ResponseEntity<?> desativarCondutor(
             @RequestParam("id") final Long id
     ){
         try{
             final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
-            assert condutorBanco != null;
-            this.condutorRepository.delete(condutorBanco);
-            return ResponseEntity.ok("Registro apagado com sucesso!");
-
+            if(condutorBanco == null){
+                throw new RuntimeException("Condutor nao encontrado");
+            }
+            if(!this.movimentacaoRepository.findByCondutorId(id).isEmpty()){
+                condutorBanco.setAtivo(false);
+                this.condutorRepository.save(condutorBanco);
+                return ResponseEntity.ok("Registro desativado com sucesso!");
+            }else{
+                this.condutorRepository.delete(condutorBanco);
+                return ResponseEntity.ok("Registro apagado com sucesso!");
+            }
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

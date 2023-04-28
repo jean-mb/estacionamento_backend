@@ -3,22 +3,26 @@ package br.com.uniamerica.estacionamento.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
+@Audited
+@AuditTable(value = "movimentacoes_audit", schema = "audit")
 @Table(name = "movimentacoes", schema = "public")
 public class Movimentacao extends AbstractEntity {
     @Getter @Setter
     @Column(name = "data_entrada", nullable = false)
     private LocalDateTime dataEntrada;
     @Getter @Setter
-    @Column(name = "data_saida", nullable = false)
+    @Column(name = "data_saida")
     private LocalDateTime dataSaida;
     @Getter @Setter
-    @Column(name = "tempo_estacionado", nullable = false)
+    @Column(name = "tempo_estacionado")
     private LocalTime tempoEstacionado;
     @Getter @Setter
     @Column(name = "tempo_multa")
