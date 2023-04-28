@@ -9,6 +9,6 @@ import java.util.List;
 public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long> {
     @Query("from Movimentacao where condutor.id = :id")
     public List<Movimentacao> findByCondutorId(@Param("id") final Long id);
-    @Query("from Movimentacao where ativo = true")
-    public List<Movimentacao> findAllAtivo();
+    @Query("from Movimentacao where dataSaida = null")
+    public List<Movimentacao> findAllAbertas();
 }
