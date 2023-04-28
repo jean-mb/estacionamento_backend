@@ -1,7 +1,9 @@
 package br.com.uniamerica.estacionamento.controller;
 
+import br.com.uniamerica.estacionamento.entity.Condutor;
 import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.repository.MarcaRepository;
+import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 public class MarcaController {
     @Autowired
     private MarcaRepository marcaRepository;
+    @Autowired
+    private ModeloRepository modeloRepository ;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -29,7 +33,7 @@ public class MarcaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastraMarca(@RequestBody final Marca marca){
+    public ResponseEntity<?> cadastrarMarca(@RequestBody final Marca marca){
         try{
             this.marcaRepository.save(marca);
             return ResponseEntity.ok("Marca cadastrada com sucesso");
@@ -58,15 +62,22 @@ public class MarcaController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deletar(
+    public ResponseEntity<?> desativarCondutor(
             @RequestParam("id") final Long id
     ){
         try{
             final Marca marcaBanco = this.marcaRepository.findById(id).orElse(null);
-            assert marcaBanco != null;
-            this.marcaRepository.delete(marcaBanco);
-            return ResponseEntity.ok("Marca atualizada com sucesso");
-
+            if(marcaBanco == null){
+                throw new RuntimeException("Marca não encontrada");
+            }
+            if(!this.modeloRepository.findByMarcaId(id).isEmpty()){
+                marcaBanco.setAtivo(false);
+                this.marcaRepository.save(marcaBanco);
+                return ResponseEntity.ok("Marca desativada com sucesso!");
+            }else{
+                this.marcaRepository.delete(marcaBanco);
+                return ResponseEntity.ok("Marca apagada com sucesso!");
+            }
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
