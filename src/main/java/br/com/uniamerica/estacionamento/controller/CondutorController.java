@@ -42,7 +42,7 @@ public class CondutorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastraCondutorr(@RequestBody final Condutor condutor){
+    public ResponseEntity<?> cadastrarCondutor(@RequestBody final Condutor condutor){
         try{
             this.condutorRepository.save(condutor);
             return ResponseEntity.ok("Registro feito com sucesso");
@@ -79,15 +79,15 @@ public class CondutorController {
         try{
             final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
             if(condutorBanco == null){
-                throw new RuntimeException("Condutor nao encontrado");
+                throw new RuntimeException("Condutor não encontrado");
             }
             if(!this.movimentacaoRepository.findByCondutorId(id).isEmpty()){
                 condutorBanco.setAtivo(false);
                 this.condutorRepository.save(condutorBanco);
-                return ResponseEntity.ok("Registro desativado com sucesso!");
+                return ResponseEntity.ok("Condutor desativado com sucesso!");
             }else{
                 this.condutorRepository.delete(condutorBanco);
-                return ResponseEntity.ok("Registro apagado com sucesso!");
+                return ResponseEntity.ok("Condutor apagado com sucesso!");
             }
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
