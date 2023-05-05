@@ -3,8 +3,10 @@ package br.com.uniamerica.estacionamento.controller;
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
+import br.com.uniamerica.estacionamento.service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(value = "/api/modelo")
 public class ModeloController {
 
-    /*
-    * Injection
-    * */
     @Autowired
     private ModeloRepository modeloRepository;
+
+    @Autowired
+    private ModeloService modeloService;
 
     @Autowired
     private VeiculoRepository veiculoRepository;
@@ -24,7 +26,6 @@ public class ModeloController {
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
         final Modelo modelo = this.modeloRepository.findById(id).orElse(null);
-
         return modelo == null ? ResponseEntity.badRequest().body("Nenhum modelo encontrado") : ResponseEntity.ok(modelo);
     }
 
@@ -35,10 +36,10 @@ public class ModeloController {
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody final Modelo modelo){
-        try{
-            this.modeloRepository.save(modelo);
-            return ResponseEntity.ok("Registro feito com sucesso");
-        }catch (Exception e){
+        try {
+            final Modelo newModelo = this.modeloService.cadastrar(modelo);
+            return ResponseEntity.ok(String.format("Modelo [ %s ] cadastrado com sucesso", newModelo.getNome()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -53,17 +54,10 @@ public class ModeloController {
             @RequestParam("id") final Long id,
             @RequestBody final Modelo modelo
     ){
-        try{
-            final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
-
-            if (modelo == null || !modeloBanco.getId().equals(modelo.getId())) {
-                throw new RuntimeException("Não foi possivel identificar o modelo informado");
-            }
-
-            this.modeloRepository.save(modelo);
-            return ResponseEntity.ok("Modelo atualizado com sucesso");
-
-        }catch (Exception e){
+        try {
+            final Modelo modeloBanco = this.modeloService.editar(id, modelo);
+            return ResponseEntity.ok(String.format("Modelo [ %s ] editado com sucesso", modeloBanco.getNome()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

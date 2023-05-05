@@ -22,7 +22,6 @@ public class CondutorController {
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
-
         return condutor == null ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutor);
     }
 
