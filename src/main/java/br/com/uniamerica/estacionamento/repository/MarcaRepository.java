@@ -8,8 +8,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface MarcaRepository extends JpaRepository<Marca, Long> {
-    @Query("from Marca where nome like :nome")
-    public List<Marca> findByNomeLike(@Param("nome") final String nome);
+    @Query("from Marca where nome = :nome")
+    public List<Marca> findByNome(@Param("nome") final String nome);
     @Query("from Marca where ativo = true")
     public List<Marca> findAllAtivo();
 
