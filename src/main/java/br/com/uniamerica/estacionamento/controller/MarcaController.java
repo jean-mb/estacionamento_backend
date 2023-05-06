@@ -51,14 +51,8 @@ public class MarcaController {
             @RequestBody Marca marca
     ){
         try {
-
-            final Marca marcaBanco = this.marcaRepository.findById(id).orElse(null);
-
-            if (marcaBanco == null || !marcaBanco.getId().equals(marca.getId())) {
-                throw new RuntimeException("Não foi possivel identifica a marca informada");
-            }
-            this.marcaRepository.save(marca);
-            return ResponseEntity.ok("Marca atualizada com sucesso");
+            final Marca marcaAtualizada = this.marcaService.editar(id, marca);
+            return ResponseEntity.ok( String.format("Marca [ %s ] atualizada com sucesso", marcaAtualizada.getNome()));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
