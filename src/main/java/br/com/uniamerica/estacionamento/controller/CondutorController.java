@@ -2,10 +2,9 @@ package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Condutor;
 import br.com.uniamerica.estacionamento.repository.CondutorRepository;
-import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
+import br.com.uniamerica.estacionamento.service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +14,8 @@ public class CondutorController {
 
     @Autowired
     private CondutorRepository condutorRepository;
-
     @Autowired
-    private MovimentacaoRepository movimentacaoRepository;
+    private CondutorService condutorService;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -37,12 +35,10 @@ public class CondutorController {
 
     @PostMapping
     public ResponseEntity<?> cadastrarCondutor(@RequestBody final Condutor condutor){
-        try{
-            this.condutorRepository.save(condutor);
-            return ResponseEntity.ok("Registro feito com sucesso");
-        }catch (JpaSystemException e){
-            return ResponseEntity.badRequest().body(e.getCause().getCause().getMessage());
-        }catch (Exception e){
+        try {
+            final Condutor newCondutor = this.condutorService.cadastrar(condutor);
+            return ResponseEntity.ok(String.format("Condutor [ %s ] cadastrado com sucesso", newCondutor.getNome()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -52,17 +48,10 @@ public class CondutorController {
             @RequestParam("id") final Long id,
             @RequestBody final Condutor condutor
     ){
-        try{
-            final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
-
-            if (condutorBanco == null || !condutorBanco.getId().equals(condutor.getId())) {
-                throw new RuntimeException("Não foi possivel identificar o condutor informado: \n" + condutorBanco.getId() + "\n" + condutor.getId());
-            }
-
-            this.condutorRepository.save(condutor);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
-
-        }catch (Exception e){
+        try {
+            final Condutor condutorBanco = this.condutorService.editar(id, condutor);
+            return ResponseEntity.ok(String.format("Condutor [ %s ] editado com sucesso", condutorBanco.getNome()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -71,18 +60,7 @@ public class CondutorController {
             @RequestParam("id") final Long id
     ){
         try{
-            final Condutor condutorBanco = this.condutorRepository.findById(id).orElse(null);
-            if(condutorBanco == null){
-                throw new RuntimeException("Condutor não encontrado");
-            }
-            if(!this.movimentacaoRepository.findByCondutorId(id).isEmpty()){
-                condutorBanco.setAtivo(false);
-                this.condutorRepository.save(condutorBanco);
-                return ResponseEntity.ok("Condutor desativado com sucesso!");
-            }else{
-                this.condutorRepository.delete(condutorBanco);
-                return ResponseEntity.ok("Condutor apagado com sucesso!");
-            }
+            return this.condutorService.desativar(id);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
