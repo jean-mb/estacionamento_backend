@@ -6,7 +6,6 @@ import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
 import br.com.uniamerica.estacionamento.service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +18,6 @@ public class ModeloController {
 
     @Autowired
     private ModeloService modeloService;
-
-    @Autowired
-    private VeiculoRepository veiculoRepository;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -66,18 +62,7 @@ public class ModeloController {
             @RequestParam("id") final Long id
     ){
         try{
-            final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
-            if(modeloBanco == null){
-                throw new RuntimeException("Modelo não encontrado");
-            }
-            if(!this.veiculoRepository.findByModeloId(id).isEmpty()){
-                modeloBanco.setAtivo(false);
-                this.modeloRepository.save(modeloBanco);
-                return ResponseEntity.ok("Modelo desativado com sucesso!");
-            }else{
-                this.modeloRepository.delete(modeloBanco);
-                return ResponseEntity.ok("Modelo apagado com sucesso!");
-            }
+            return this.modeloService.desativar(id);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

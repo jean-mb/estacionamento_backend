@@ -3,6 +3,7 @@ import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.repository.MarcaRepository;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
+import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,13 @@ public class ModeloService {
     private ModeloRepository modeloRepository;
     @Autowired
     private MarcaRepository marcaRepository;
+    @Autowired
+    private VeiculoRepository veiculoRepository;
 
+    /**
+     * @param modelo Objeto do tipo {@link Modelo} para ser cadastrado.
+     * @return Modelo criado, ou em caso de falha em uma verificação, retorna uma Exception
+     */
     @Transactional
     public Modelo cadastrar(final Modelo modelo){
         /*
@@ -46,13 +53,18 @@ public class ModeloService {
         return this.modeloRepository.save(modelo);
     }
 
+    /**
+     * @param id ID do Modelo a ser editado
+     * @param modelo Objeto do tipo {@link Modelo} para editar o registro
+     * @return Caso passe por todas as validaçoes, retorna o novo Modelo, senão, retorna uma Exception
+     */
     @Transactional
     public Modelo editar(Long id, Modelo modelo){
         /*
         * Verifica se o modelo existe
         */
         final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
-        Assert.notNull(modeloBanco, "Modelo não existe!"    );
+        Assert.notNull(modeloBanco, "Modelo não existe!");
 
         /*
         * Verifica os modelos coincidem
@@ -75,5 +87,33 @@ public class ModeloService {
 
         return this.modeloRepository.save(modelo);
 
+    }
+
+    /**
+     * @param id ID do {@link Modelo} a ser desativado
+     * @return ResponseEntity -> Se o modelo tiver relação com algum Veiculo, desativa o Modelo, senão, faz o DELETE do registro
+     */
+    @Transactional
+    public ResponseEntity<?> desativar(Long id){
+
+        /*
+        * Verifica se o Modelo informado existe
+        * */
+        final Modelo modeloBanco = this.modeloRepository.findById(id).orElse(null);
+        Assert.notNull(modeloBanco, "Modelo não encontrado!");
+
+        /*
+        * Verifica se o Modelo informado está relacionado a um Veiculo,
+        * True: Desativa o cadastro
+        * False: Faz o DELETE do registro
+        * */
+        if(!this.veiculoRepository.findByModeloId(id).isEmpty()){
+            modeloBanco.setAtivo(false);
+            this.modeloRepository.save(modeloBanco);
+            return ResponseEntity.ok("Modelo DESATIVADO pois está relacionado a veículos!");
+        }else{
+            this.modeloRepository.delete(modeloBanco);
+            return ResponseEntity.ok("Modelo DELETADO com sucesso!");
+        }
     }
 }
