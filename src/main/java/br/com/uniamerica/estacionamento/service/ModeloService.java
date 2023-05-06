@@ -76,7 +76,6 @@ public class ModeloService {
         * Verifica os campos que são notNull
         * */
         Assert.notNull(modelo.getCadastro(), "Data do cadastro não informada!");
-        Assert.notNull(modelo.getEdicao(), "Data da edição não informada!");
         Assert.notNull(modelo.getNome(), "Nome do modelo não informado!");
         Assert.hasText(modelo.getNome(), "Nome do modelo vazio! Informe o nome do Modelo no campo 'nome'!");
         Assert.notNull(modelo.getMarca(), "Marca não informada! Informe o ID da Marca");
