@@ -47,6 +47,12 @@ public class MarcaService {
         Assert.notNull(marcaBanco, "Marca não encontrada!");
         Assert.isTrue(marcaBanco.getId().equals(marca.getId()), "ID da Marca informada não é a mesmo que o ID da Marca a ser atualizado!");
 
+        /*
+         * Verifica se a marca já existe
+         * */
+        final List<Marca> marcasByNome = this.marcaRepository.findByNome(marca.getNome());
+        Assert.isTrue(marcasByNome.isEmpty(), String.format( "Marca já [ %s ] já existe!", marca.getNome()));
+
         Assert.notNull(marca.getNome(), "Nome da marca não foi informado! Informe o nome da marca com o campo 'nome'");
         Assert.hasText(marca.getNome(), "Nome da marca vazio! Informe o nome da marca no campo 'nome'");
         Assert.notNull(marca.getCadastro(), "Data de cadastro não informada!");

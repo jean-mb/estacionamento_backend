@@ -73,6 +73,12 @@ public class ModeloService {
         Assert.isTrue(modeloBanco.getId().equals(modelo.getId()), "Modelo informado não é o mesmo que o modelo a ser atualizado");
 
         /*
+         * Verifica se o nome do modelo já existe
+         * */
+        final List<Modelo> modelosByNome = this.modeloRepository.findByNome(modelo.getNome());
+        Assert.isTrue(modelosByNome.isEmpty(), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
+
+        /*
         * Verifica os campos que são notNull
         * */
         Assert.notNull(modelo.getCadastro(), "Data do cadastro não informada!");
