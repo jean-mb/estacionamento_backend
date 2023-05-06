@@ -2,9 +2,9 @@ package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Configuracao;
 import br.com.uniamerica.estacionamento.repository.ConfiguracaoRepository;
+import br.com.uniamerica.estacionamento.service.ConfiguracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 public class ConfiguracaoController {
     @Autowired
     private ConfiguracaoRepository configuracaoRepository;
+    @Autowired
+    private ConfiguracaoService configuracaoService;
 
     @GetMapping("/lista")
     public ResponseEntity<?> listarAll(){
@@ -21,12 +23,10 @@ public class ConfiguracaoController {
 
     @PostMapping
     public ResponseEntity<?> cadastrarCondutor(@RequestBody final Configuracao configuracao){
-        try{
-            this.configuracaoRepository.save(configuracao);
-            return ResponseEntity.ok("Registro feito com sucesso");
-        }catch (JpaSystemException e){
-            return ResponseEntity.badRequest().body(e.getCause().getCause().getMessage());
-        }catch (Exception e){
+        try {
+            final Configuracao configuracaoBanco = this.configuracaoService.cadastrar(configuracao);
+            return ResponseEntity.ok("Configuracao cadastrada com sucesso");
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
