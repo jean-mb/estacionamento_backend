@@ -2,7 +2,6 @@ package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.repository.MarcaRepository;
-import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import br.com.uniamerica.estacionamento.service.MarcaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class MarcaController {
     @Autowired
     private MarcaRepository marcaRepository;
-    @Autowired
-    private ModeloRepository modeloRepository;
 
     @Autowired
     private MarcaService marcaService;

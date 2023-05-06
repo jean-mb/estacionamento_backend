@@ -3,6 +3,7 @@ package br.com.uniamerica.estacionamento.controller;
 import br.com.uniamerica.estacionamento.entity.Veiculo;
 import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
 import br.com.uniamerica.estacionamento.repository.VeiculoRepository;
+import br.com.uniamerica.estacionamento.service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,9 @@ public class VeiculoController {
 
     @Autowired
     private MovimentacaoRepository movimentacaoRepository;
+
+    @Autowired
+    private VeiculoService veiculoService;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -32,17 +36,17 @@ public class VeiculoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarVeiculo(@RequestBody final Veiculo veiculo){
+    public ResponseEntity<?> cadastrar(@RequestBody final Veiculo veiculo){
         try {
-            this.veiculoRepository.save(veiculo);
-            return ResponseEntity.ok("Veiulo cadastrado com sucesso!");
+            final Veiculo newVeiculo = this.veiculoService.cadastrar(veiculo);
+            return ResponseEntity.ok(String.format("Veiulo placa [ %s ] cadastrado com sucesso!", newVeiculo.getPlaca()));
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PutMapping
-    public ResponseEntity<?> atualizarVeiculo(
+    public ResponseEntity<?> atualizar(
             @RequestParam("id") final Long id,
             @RequestBody final Veiculo veiculo
     ){
@@ -59,7 +63,7 @@ public class VeiculoController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> desativarVeiculo(
+    public ResponseEntity<?> desativar(
             @RequestParam("id") final Long id
     ){
         try{
