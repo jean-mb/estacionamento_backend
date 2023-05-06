@@ -1,7 +1,9 @@
 package br.com.uniamerica.estacionamento.controller;
 
+import br.com.uniamerica.estacionamento.entity.Modelo;
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
 import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
+import br.com.uniamerica.estacionamento.service.MovimentacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class MovimentacaoController {
     @Autowired
     private MovimentacaoRepository movimentacaoRepository;
+    @Autowired
+    private MovimentacaoService movimentacaoService;
 
     @GetMapping
     public ResponseEntity<?> findById(@RequestParam("id") final Long id){
@@ -31,13 +35,11 @@ public class MovimentacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarMovimentacao(@RequestBody final Movimentacao movimentacao){
-        try{
-            this.movimentacaoRepository.save(movimentacao);
-            return ResponseEntity.ok("Movimentacao feita com sucesso");
-        }catch (JpaSystemException e){
-            return ResponseEntity.badRequest().body(e.getCause().getCause().getMessage());
-        }catch (Exception e){
+    public ResponseEntity<?> cadastrar(@RequestBody final Movimentacao movimentacao){
+        try {
+            final Movimentacao movimentacaoBanco = this.movimentacaoService.cadastrar(movimentacao);
+            return ResponseEntity.ok(String.format("Movimentação [ %s ] cadastrada com sucesso", movimentacaoBanco.getId()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -47,17 +49,10 @@ public class MovimentacaoController {
             @RequestParam("id") final Long id,
             @RequestBody final Movimentacao movimentacao
     ){
-        try{
-            final Movimentacao movimentacaoBanco = this.movimentacaoRepository.findById(id).orElse(null);
-
-            if (movimentacaoBanco == null || !movimentacaoBanco.getId().equals(movimentacao.getId())) {
-                throw new RuntimeException("Não foi possivel identificar a movimentação informada");
-            }
-
-            this.movimentacaoRepository.save(movimentacao);
-            return ResponseEntity.ok("Movimentação atualizada com sucesso");
-
-        }catch (Exception e){
+        try {
+            final Movimentacao movimentacaoBanco = this.movimentacaoService.editar(id, movimentacao);
+            return ResponseEntity.ok(String.format("Movimentação [ %s ] editado com sucesso", movimentacaoBanco.getId()));
+        } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -67,14 +62,7 @@ public class MovimentacaoController {
             @RequestParam("id") final Long id
     ){
         try{
-            final Movimentacao movimentacaoBanco = this.movimentacaoRepository.findById(id).orElse(null);
-            if(movimentacaoBanco == null){
-                throw new RuntimeException("Movimentação não encontrada!");
-            }
-            movimentacaoBanco.setAtivo(false);
-            this.movimentacaoRepository.save(movimentacaoBanco);
-            return ResponseEntity.ok("Movimentação desativada com sucesso!");
-
+            return this.movimentacaoService.desativar(id);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
