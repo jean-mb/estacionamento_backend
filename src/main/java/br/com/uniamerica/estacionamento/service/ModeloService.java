@@ -29,9 +29,10 @@ public class ModeloService {
     @Transactional
     public Modelo cadastrar(final Modelo modelo){
         /*
-        * Verifica se o nome do modelo foi informado
+        * Verifica se o nome do modelo foi informado e se contém texto
         * */
-        Assert.notNull(modelo.getNome(), "Nome do modelo não informado!");
+        Assert.notNull(modelo.getNome(), "Nome do modelo não informado! Informe o nome do modelo");
+        Assert.hasText(modelo.getNome(), "Nome do modelo vazio! Informe o nome do modelo no campo 'nome'!");
 
         /*
         * Verifica se o nome do modelo já existe
@@ -42,7 +43,7 @@ public class ModeloService {
         /*
         * Verifica se a marca foi informada
         * */
-        Assert.notNull(modelo.getMarca(), "Marca não informada");
+        Assert.notNull(modelo.getMarca(), "Marca não informada! Informe o ID da marca!");
 
         /*
         * Verifica se a marca exite
@@ -77,7 +78,8 @@ public class ModeloService {
         Assert.notNull(modelo.getCadastro(), "Data do cadastro não informada!");
         Assert.notNull(modelo.getEdicao(), "Data da edição não informada!");
         Assert.notNull(modelo.getNome(), "Nome do modelo não informado!");
-        Assert.notNull(modelo.getMarca(), "Marca não informada");
+        Assert.hasText(modelo.getNome(), "Nome do modelo vazio! Informe o nome do Modelo no campo 'nome'!");
+        Assert.notNull(modelo.getMarca(), "Marca não informada! Informe o ID da Marca");
 
         /*
         * Verifica se marca existe
