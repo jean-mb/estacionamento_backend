@@ -59,22 +59,11 @@ public class MarcaController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> desativarCondutor(
+    public ResponseEntity<?> desativar(
             @RequestParam("id") final Long id
     ){
         try{
-            final Marca marcaBanco = this.marcaRepository.findById(id).orElse(null);
-            if(marcaBanco == null){
-                throw new RuntimeException("Marca não encontrada");
-            }
-            if(!this.modeloRepository.findByMarcaId(id).isEmpty()){
-                marcaBanco.setAtivo(false);
-                this.marcaRepository.save(marcaBanco);
-                return ResponseEntity.ok("Marca desativada com sucesso!");
-            }else{
-                this.marcaRepository.delete(marcaBanco);
-                return ResponseEntity.ok("Marca apagada com sucesso!");
-            }
+            return this.marcaService.desativar(id);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

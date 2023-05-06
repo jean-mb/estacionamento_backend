@@ -58,7 +58,7 @@ public class ModeloController {
         }
     }
     @DeleteMapping
-    public ResponseEntity<?> desativarCondutor(
+    public ResponseEntity<?> desativar(
             @RequestParam("id") final Long id
     ){
         try{

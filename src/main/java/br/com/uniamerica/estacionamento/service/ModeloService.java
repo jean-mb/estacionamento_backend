@@ -111,10 +111,10 @@ public class ModeloService {
         if(!this.veiculoRepository.findByModeloId(id).isEmpty()){
             modeloBanco.setAtivo(false);
             this.modeloRepository.save(modeloBanco);
-            return ResponseEntity.ok("Modelo DESATIVADO pois está relacionado a veículos!");
+            return ResponseEntity.ok( String.format("Modelo [ %s ] DESATIVADO pois está relacionado a veículos!", modeloBanco.getNome()));
         }else{
             this.modeloRepository.delete(modeloBanco);
-            return ResponseEntity.ok("Modelo DELETADO com sucesso!");
+            return ResponseEntity.ok(String.format("Modelo [ %s ] DELETADO com sucesso!", modeloBanco.getNome()));
         }
     }
 }
