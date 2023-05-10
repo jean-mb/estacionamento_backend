@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Configuracao;
+import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.repository.ConfiguracaoRepository;
 import br.com.uniamerica.estacionamento.service.ConfiguracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +37,9 @@ public class ConfiguracaoController {
             @RequestParam("id") final Long id,
             @RequestBody final Configuracao configuracao
     ){
-        try{
-            final Configuracao configuracaoBanco = this.configuracaoRepository.findById(id).orElse(null);
-
-            if (configuracaoBanco == null || !configuracaoBanco.getId().equals(configuracao.getId())) {
-                throw new RuntimeException("Não foi possivel identificar o registro informado");
-            }
-
-            this.configuracaoRepository.save(configuracao);
-            return ResponseEntity.ok("Registro atualizado com sucesso");
-
+        try {
+            final Configuracao configuracaoAtualizado = this.configuracaoService.editar(id, configuracao);
+            return ResponseEntity.ok("Configurações atualizadas com sucesso");
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

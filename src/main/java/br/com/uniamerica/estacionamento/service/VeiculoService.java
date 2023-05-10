@@ -83,7 +83,7 @@ public class VeiculoService {
         Assert.notNull(veiculoBanco, "Modelo não encontrado!");
 
         /*
-         * Verifica se o Veiculo informado está relacionado a um Veiculo,
+         * Verifica se o Veiculo informado está relacionado a uma Movimentação,
          * True: Desativa o cadastro
          * False: Faz o DELETE do registro
          * */

@@ -26,6 +26,9 @@ public class MovimentacaoService {
          * Verifica se o condutor foi informada
          * */
         Assert.notNull(movimentacao.getCondutor(), "Condutor não informado! Informe o ID do condutor!");
+
+
+
         Assert.notNull(movimentacao.getVeiculo(), "Veiculo não informado! Informe o ID do veiculo!");
         Assert.notNull(movimentacao.getDataEntrada(), "Data de Entrada não informada!");
 
