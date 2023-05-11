@@ -51,6 +51,9 @@ public class ModeloService {
         final Marca marca = this.marcaRepository.findById(modelo.getMarca().getId()).orElse(null);
         Assert.notNull(marca, "Marca não existe!");
 
+        // Verifica se a marca esta ativa
+        Assert.isTrue(marca.isAtivo(), String.format("Marca [ %s ] está desativada!", marca.getNome()));
+
         return this.modeloRepository.save(modelo);
     }
 
@@ -91,6 +94,9 @@ public class ModeloService {
         * */
         final Marca marca = this.marcaRepository.findById(modelo.getMarca().getId()).orElse(null);
         Assert.notNull(marca, "Marca não existe!");
+
+        // Verifica se a marca esta ativa
+        Assert.isTrue(marca.isAtivo(), String.format("Marca [ %s ] está desativada!", marca.getNome()));
 
         return this.modeloRepository.save(modelo);
 

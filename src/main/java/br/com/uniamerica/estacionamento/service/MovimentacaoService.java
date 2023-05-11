@@ -37,8 +37,17 @@ public class MovimentacaoService {
          * */
         final Condutor condutor = this.condutorRepository.findById(movimentacao.getCondutor().getId()).orElse(null);
         Assert.notNull(condutor, "Condutor não existe!");
+
+        // Verifica se o condutor esta ativo
+        Assert.isTrue(condutor.isAtivo(), String.format("Contudor [ %s ] está desativado!", condutor.getNome()));
+
+
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
+
+        // Verifica se o veiculo esta ativo
+        Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
+
 
         return this.movimentacaoRepository.save(movimentacao);
     }

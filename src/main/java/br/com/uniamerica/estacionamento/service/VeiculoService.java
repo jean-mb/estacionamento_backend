@@ -37,6 +37,10 @@ public class VeiculoService {
         final Modelo modelo = this.modeloRepository.findById(veiculo.getModelo().getId()).orElse(null);
         Assert.notNull(modelo, "Modelo informado não existe!");
 
+        // Verifica se o modelo esta ativo
+        Assert.isTrue(modelo.isAtivo(), String.format("Modelo [ %s ] está desativada!", modelo.getNome()));
+
+
         return this.veiculoRepository.save(veiculo);
     }
     @Transactional
@@ -70,6 +74,9 @@ public class VeiculoService {
         Assert.notNull(veiculo.getModelo(), "Modelo não informado!");
         final Modelo modelo = this.modeloRepository.findById(veiculo.getModelo().getId()).orElse(null);
         Assert.notNull(modelo, "Modelo não existe!");
+
+        // Verifica se o modelo esta ativo
+        Assert.isTrue(modelo.isAtivo(), String.format("Modelo [ %s ] está desativada!", modelo.getNome()));
 
         return this.veiculoRepository.save(veiculo);
     }

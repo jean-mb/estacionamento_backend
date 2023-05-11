@@ -30,6 +30,10 @@ public class CondutorService {
         Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
         Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
 
+        /* Verificar se o CPF está no padrão correto */
+        final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
+        Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
+
         final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
 
@@ -54,8 +58,14 @@ public class CondutorService {
         Assert.notNull(condutor.getCadastro(), "Data do cadastro não informada!");
         Assert.notNull(condutor.getNome(), "Nome do condutor não informado!");
         Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.notNull(condutor.getCpf(), "CPF não informada! Informe o CPF do condutor");
+        Assert.notNull(condutor.getCpf(), "CPF não informado! Informe o CPF do condutor");
         Assert.hasText(condutor.getCpf(), "CPF vazio!");
+        Assert.notNull(condutor.getTelefone(), "Número de telefone não foi informado!");
+        Assert.hasText(condutor.getTelefone(), "Número de telefone está vazio!");
+
+        /* Verificar se o CPF está no padrão correto */
+        final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
+        Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
 
         final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
