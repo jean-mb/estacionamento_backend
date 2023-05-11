@@ -26,7 +26,9 @@ public class CondutorService {
         Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
         Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
         Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio! Informe o nome do CPF no campo 'nome'!");
+        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
+        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
+        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
 
         final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
