@@ -20,22 +20,23 @@ public class CondutorService {
 
     @Transactional
     public Condutor cadastrar(final Condutor condutor){
-        /*
-         * Verifica se o nome do condutor foi informado e se contém texto
-         * */
-        Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
-        Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
-        Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
-        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
-        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
 
-        /* Verificar se o CPF está no padrão correto */
+        Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
+        Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
+        Assert.isTrue(condutor.getNome().length() <= 50, String.format("Nome do condutor não pode ter mais que 50 caracteres! Nome informado tem %s caracteres!", condutor.getNome().length()));
+
+        Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
+        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
+        Assert.isTrue(condutor.getCpf().length() <= 14,String.format("CPF do condutor não pode ter mais que 14 caracteres! CPF informado contem %s caracteres!", condutor.getCpf()));
         final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
         Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
 
         final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
+
+        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
+        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
+        Assert.isTrue(condutor.getTelefone().length() <= 15, String.format("Telefone do condutor não pode conter mais que 15 caracteres! Telefone informado contem %s caracteres!", condutor.getTelefone().length()));
 
         return this.condutorRepository.save(condutor);
     }
@@ -52,23 +53,24 @@ public class CondutorService {
          */
         Assert.isTrue(condutorBanco.getId().equals(condutor.getId()), "Condutor informado não é o mesmo que o condutor a ser atualizado");
 
-        /*
-         * Verifica os campos que são notNull
-         * */
-        Assert.notNull(condutor.getCadastro(), "Data do cadastro não informada!");
-        Assert.notNull(condutor.getNome(), "Nome do condutor não informado!");
+        Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
         Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.notNull(condutor.getCpf(), "CPF não informado! Informe o CPF do condutor");
-        Assert.hasText(condutor.getCpf(), "CPF vazio!");
-        Assert.notNull(condutor.getTelefone(), "Número de telefone não foi informado!");
-        Assert.hasText(condutor.getTelefone(), "Número de telefone está vazio!");
+        Assert.isTrue(condutor.getNome().length() <= 50, String.format("Nome do condutor não pode ter mais que 50 caracteres! Nome informado tem %s caracteres!", condutor.getNome().length()));
 
-        /* Verificar se o CPF está no padrão correto */
+        Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
+        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
+        Assert.isTrue(condutor.getCpf().length() <= 14,String.format("CPF do condutor não pode ter mais que 14 caracteres! CPF informado contem %s caracteres!", condutor.getCpf()));
         final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
         Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
 
         final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
+
+        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
+        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
+        Assert.isTrue(condutor.getTelefone().length() <= 15, String.format("Telefone do condutor não pode conter mais que 15 caracteres! Telefone informado contem %s caracteres!", condutor.getTelefone().length()));
+
+        Assert.notNull(condutor.getCadastro(), "Data de cadastro não informada!");
 
         return this.condutorRepository.save(condutor);
     }
