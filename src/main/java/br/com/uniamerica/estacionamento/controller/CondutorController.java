@@ -6,9 +6,10 @@ import br.com.uniamerica.estacionamento.service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/condutor")
 public class CondutorController {
 
@@ -34,7 +35,7 @@ public class CondutorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarCondutor(@RequestBody final Condutor condutor){
+    public ResponseEntity<?> cadastrarCondutor(@RequestBody @Validated final Condutor condutor){
         try {
             final Condutor newCondutor = this.condutorService.cadastrar(condutor);
             return ResponseEntity.ok(String.format("Condutor [ %s ] cadastrado com sucesso", newCondutor.getNome()));
