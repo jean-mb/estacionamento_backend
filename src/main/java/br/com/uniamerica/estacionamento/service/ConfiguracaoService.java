@@ -7,36 +7,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.List;
+
 @Service
 public class ConfiguracaoService {
     @Autowired
     private ConfiguracaoRepository configuracaoRepository;
     @Transactional
     public Configuracao cadastrar(final Configuracao configuracao){
-        Assert.notNull(configuracao.getValorHora(), "Valor hora não informada!");
-        Assert.notNull(configuracao.getHoraAbertura(), "Hora de abertura não informada!");
-        Assert.notNull(configuracao.getHoraFechamento(), "Hora de fechamento não informada!");
 
+        /*
+        * Verifica se já não existe uma configuração vigente
+        * */
+        final List<Configuracao> isPrimeiraConfiguracao = this.configuracaoRepository.findAll();
+        Assert.isTrue(isPrimeiraConfiguracao.isEmpty(), "Já existe uma configuração vigente, se quiser fazer alterações, edite-a com o método PUT");
+
+        Assert.isTrue(configuracao.getHoraAbertura().isBefore(configuracao.getHoraFechamento()), "O horário de abertura deve ser anterior ao horário de fechamento.");
         return this.configuracaoRepository.save(configuracao);
     }
     @Transactional
-    public Configuracao editar(Long id, Configuracao configuracao){
+    public Configuracao editar(Configuracao novaConfiguracao){
         /*
          * Verifica se a configuracao existe
          */
-        final Configuracao configuracaoBanco = this.configuracaoRepository.findById(id).orElse(null);
-        Assert.notNull(configuracaoBanco, "Configuração não existe!");
+        final List<Configuracao> configuracaoExiste = this.configuracaoRepository.findAll();
+        Assert.isTrue(!configuracaoExiste.isEmpty(), "Nenhuma configuração foi feita! Configure com o método POST");
 
-        /*
-         * Verifica as configurações coincidem
-         */
-        Assert.isTrue(configuracao.getId().equals(configuracaoBanco.getId()), "Configuração informada não é o mesma que a configuração a ser atualizada");
+        final Configuracao configuracaoVigente = this.configuracaoRepository.findById(novaConfiguracao.getId()).orElse(null);
+        Assert.notNull(configuracaoVigente, String.format("Não foi possível localizar a configuração com ID [ %s ]", novaConfiguracao.getId()));
 
+        Assert.isTrue(novaConfiguracao.getHoraAbertura().isBefore(novaConfiguracao.getHoraFechamento()), "O horário de abertura deve ser anterior ao horário de fechamento.");
 
-        Assert.notNull(configuracao.getValorHora(), "Valor hora não informada!");
-        Assert.notNull(configuracao.getHoraAbertura(), "Hora de abertura não informada!");
-        Assert.notNull(configuracao.getHoraFechamento(), "Hora de fechamento não informada!");
-
-        return this.configuracaoRepository.save(configuracao);
+        return this.configuracaoRepository.save(novaConfiguracao);
     }
 }

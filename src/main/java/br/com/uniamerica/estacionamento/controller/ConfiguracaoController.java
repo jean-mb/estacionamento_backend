@@ -7,9 +7,10 @@ import br.com.uniamerica.estacionamento.service.ConfiguracaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/api/configuracao")
 public class ConfiguracaoController {
     @Autowired
@@ -17,28 +18,25 @@ public class ConfiguracaoController {
     @Autowired
     private ConfiguracaoService configuracaoService;
 
-    @GetMapping("/lista")
-    public ResponseEntity<?> listarAll(){
+    @GetMapping
+    public ResponseEntity<?> getConfiguracao(){
         return ResponseEntity.ok(this.configuracaoRepository.findAll());
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarCondutor(@RequestBody final Configuracao configuracao){
+    public ResponseEntity<?> primeiraConfiguracao(@RequestBody @Validated final Configuracao configuracao){
         try {
             final Configuracao configuracaoBanco = this.configuracaoService.cadastrar(configuracao);
-            return ResponseEntity.ok("Configuracao cadastrada com sucesso");
+            return ResponseEntity.ok("Configuracao feita com sucesso!");
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping
-    public ResponseEntity<?> editarCondutor(
-            @RequestParam("id") final Long id,
-            @RequestBody final Configuracao configuracao
-    ){
+    @PutMapping("/editar")
+    public ResponseEntity<?> editar(@RequestBody @Validated final Configuracao configuracao){
         try {
-            final Configuracao configuracaoAtualizado = this.configuracaoService.editar(id, configuracao);
+            final Configuracao configuracaoAtualizado = this.configuracaoService.editar(configuracao);
             return ResponseEntity.ok("Configurações atualizadas com sucesso");
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
