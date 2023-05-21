@@ -24,15 +24,8 @@ public class VeiculoService {
 
     @Transactional
     public Veiculo cadastrar(Veiculo veiculo){
-        Assert.notNull(veiculo.getPlaca(), "Placa não foi informada!");
-        Assert.hasText(veiculo.getPlaca(), "Placa informada em branco!");
-        Assert.isTrue(veiculo.getPlaca().length() <= 10, String.format("Placa não deve conter mais que 10 caracteres! Placa informada contêm %s caracteres", veiculo.getPlaca().length()));
         final List<Veiculo> veiculosByPlaca = this.veiculoRepository.findByPlaca(veiculo.getPlaca());
         Assert.isTrue(veiculosByPlaca.isEmpty(),  String.format("Veiculo com placa [ %s ] já existe!", veiculo.getPlaca()));
-
-        Assert.notNull(veiculo.getCor(), "Cor não informada!");
-        Assert.notNull(veiculo.getTipo(), "Tipo do veículo não foi informado!");
-        Assert.notNull(veiculo.getModelo(), "Modelo não informado!");
 
         final Modelo modelo = this.modeloRepository.findById(veiculo.getModelo().getId()).orElse(null);
         Assert.notNull(modelo, "Modelo informado não existe!");
@@ -50,18 +43,14 @@ public class VeiculoService {
         final Veiculo veiculoBanco = this.veiculoRepository.findById(id).orElse(null);
         Assert.notNull(veiculoBanco, "Veiculo não existe!");
         Assert.notNull(veiculo.getCadastro(), "Data do cadastro não informada!");
-        Assert.notNull(veiculo.getPlaca(), "Placa do veiculo não informada!");
-        Assert.hasText(veiculo.getPlaca(), "Placa do veiculo vazia!");
-        Assert.isTrue(veiculo.getPlaca().length() <= 10, String.format("Placa não deve conter mais que 10 caracteres! Placa informada contêm %s caracteres", veiculo.getPlaca().length()));
-        Assert.notNull(veiculo.getCor(), "Cor do veiculo não informada!");
-        Assert.notNull(veiculo.getTipo(), "Tipo do veiculo não informado!");
-
         /*
          * Verifica os veiculos coincidem
          */
         Assert.isTrue(veiculoBanco.getId().equals(veiculo.getId()), "Veiculo informado não é o mesmo que o veiculo a ser atualizado");
         final List<Veiculo> veiculosByPlaca = this.veiculoRepository.findByPlaca(veiculo.getPlaca());
-        Assert.isTrue(veiculosByPlaca.isEmpty(),  String.format("Veiculo com placa [ %s ] já existe!", veiculo.getPlaca()));
+        if(!veiculosByPlaca.isEmpty()){
+            Assert.isTrue(veiculosByPlaca.get(0).getId().equals(veiculo.getId()),  String.format("Veiculo com placa [ %s ] já existe!", veiculo.getPlaca()));
+        }
         /*
          * Verifica se modelo existe
          * */

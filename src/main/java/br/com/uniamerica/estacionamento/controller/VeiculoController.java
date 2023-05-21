@@ -6,9 +6,10 @@ import br.com.uniamerica.estacionamento.service.VeiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/veiculo")
 public class VeiculoController {
     @Autowired
@@ -32,7 +33,7 @@ public class VeiculoController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Veiculo veiculo){
+    public ResponseEntity<?> cadastrar(@RequestBody @Validated final Veiculo veiculo){
         try {
             final Veiculo newVeiculo = this.veiculoService.cadastrar(veiculo);
             return ResponseEntity.ok(String.format("Veiulo placa [ %s ] cadastrado com sucesso!", newVeiculo.getPlaca()));
@@ -44,7 +45,8 @@ public class VeiculoController {
     @PutMapping
     public ResponseEntity<?> atualizar(
             @RequestParam("id") final Long id,
-            @RequestBody final Veiculo veiculo
+            @RequestBody @Validated
+            final Veiculo veiculo
     ){
         try {
             final Veiculo newVeiculo = this.veiculoService.editar(id, veiculo);
