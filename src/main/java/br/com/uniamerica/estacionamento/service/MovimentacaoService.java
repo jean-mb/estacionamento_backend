@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.time.LocalDateTime;
+
 
 @Service
 public class MovimentacaoService {
@@ -22,32 +24,17 @@ public class MovimentacaoService {
 
     @Transactional
     public Movimentacao cadastrar(final Movimentacao movimentacao){
-        /*
-         * Verifica se o condutor foi informada
-         * */
-        Assert.notNull(movimentacao.getCondutor(), "Condutor não informado! Informe o ID do condutor!");
 
+        if (movimentacao.getDataEntrada() == null){
+            movimentacao.setDataEntrada(LocalDateTime.now());
+        }
 
-
-        Assert.notNull(movimentacao.getVeiculo(), "Veiculo não informado! Informe o ID do veiculo!");
-        Assert.notNull(movimentacao.getDataEntrada(), "Data de Entrada não informada!");
-
-        /*
-         * Verifica se o condutor e o veiculo exitem
-         * */
         final Condutor condutor = this.condutorRepository.findById(movimentacao.getCondutor().getId()).orElse(null);
         Assert.notNull(condutor, "Condutor não existe!");
-
-        // Verifica se o condutor esta ativo
         Assert.isTrue(condutor.isAtivo(), String.format("Contudor [ %s ] está desativado!", condutor.getNome()));
-
-
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
-
-        // Verifica se o veiculo esta ativo
         Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
-
 
         return this.movimentacaoRepository.save(movimentacao);
     }
@@ -82,6 +69,15 @@ public class MovimentacaoService {
 
         return this.movimentacaoRepository.save(movimentacao);
 
+    }
+    @Transactional
+    public Movimentacao fecharMovimentacao(Long id){
+        final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
+        Assert.notNull(movimentacao, String.format("Movimentação com ID [ %s ] não existe!", id));
+        movimentacao.setDataSaida(LocalDateTime.now());
+
+
+        return this.movimentacaoRepository.save(movimentacao);
     }
 
     @Transactional
