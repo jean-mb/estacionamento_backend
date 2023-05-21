@@ -5,10 +5,10 @@ import br.com.uniamerica.estacionamento.repository.MarcaRepository;
 import br.com.uniamerica.estacionamento.service.MarcaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/marca")
 public class MarcaController {
     @Autowired
@@ -33,7 +33,7 @@ public class MarcaController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarMarca(@RequestBody final Marca marca){
+    public ResponseEntity<?> cadastrarMarca(@RequestBody @Validated final Marca marca){
         try{
             final Marca newMarca = this.marcaService.cadastrar(marca);
             return ResponseEntity.ok(String.format("Marca [ %s ] cadastrada com sucesso!", marca.getNome()));
@@ -45,7 +45,7 @@ public class MarcaController {
     @PutMapping
     public ResponseEntity<?> atualizarMarca(
             @RequestParam("id") final Long id,
-            @RequestBody Marca marca
+            @RequestBody @Validated Marca marca
     ){
         try {
             final Marca marcaAtualizada = this.marcaService.editar(id, marca);
