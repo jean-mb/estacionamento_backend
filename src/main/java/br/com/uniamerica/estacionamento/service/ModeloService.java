@@ -29,21 +29,10 @@ public class ModeloService {
     @Transactional
     public Modelo cadastrar(final Modelo modelo){
         /*
-        * Verifica se o nome do modelo foi informado e se contém texto
-        * */
-        Assert.notNull(modelo.getNome(), "Nome do modelo não informado! Informe o nome do modelo");
-        Assert.hasText(modelo.getNome(), "Nome do modelo vazio! Informe o nome do modelo no campo 'nome'!");
-
-        /*
         * Verifica se o nome do modelo já existe
         * */
         final List<Modelo> modelosByNome = this.modeloRepository.findByNome(modelo.getNome());
         Assert.isTrue(modelosByNome.isEmpty(), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
-
-        /*
-        * Verifica se a marca foi informada
-        * */
-        Assert.notNull(modelo.getMarca(), "Marca não informada! Informe o ID da marca!");
 
         /*
         * Verifica se a marca exite
@@ -79,15 +68,11 @@ public class ModeloService {
          * Verifica se o nome do modelo já existe
          * */
         final List<Modelo> modelosByNome = this.modeloRepository.findByNome(modelo.getNome());
-        Assert.isTrue(modelosByNome.isEmpty(), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
+        if (!modelosByNome.isEmpty()){
+            Assert.isTrue(modelosByNome.get(0).getId().equals(modelo.getId()), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
+        }
 
-        /*
-        * Verifica os campos que são notNull
-        * */
         Assert.notNull(modelo.getCadastro(), "Data do cadastro não informada!");
-        Assert.notNull(modelo.getNome(), "Nome do modelo não informado!");
-        Assert.hasText(modelo.getNome(), "Nome do modelo vazio! Informe o nome do Modelo no campo 'nome'!");
-        Assert.notNull(modelo.getMarca(), "Marca não informada! Informe o ID da Marca");
 
         /*
         * Verifica se marca existe

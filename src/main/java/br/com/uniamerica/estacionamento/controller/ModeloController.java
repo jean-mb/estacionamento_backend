@@ -6,9 +6,10 @@ import br.com.uniamerica.estacionamento.service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/modelo")
 public class ModeloController {
 
@@ -30,7 +31,7 @@ public class ModeloController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Modelo modelo){
+    public ResponseEntity<?> cadastrar(@RequestBody @Validated final Modelo modelo){
         try {
             final Modelo newModelo = this.modeloService.cadastrar(modelo);
             return ResponseEntity.ok(String.format("Modelo [ %s ] cadastrado com sucesso", newModelo.getNome()));
@@ -47,7 +48,7 @@ public class ModeloController {
     @PutMapping
     public ResponseEntity<?> editar(
             @RequestParam("id") final Long id,
-            @RequestBody final Modelo modelo
+            @RequestBody @Validated final Modelo modelo
     ){
         try {
             final Modelo modeloBanco = this.modeloService.editar(id, modelo);
