@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.configuracao;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,5 +30,10 @@ public class ExceptionHandlerAdvice {
                 });
 
         return errors;
+    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public String handleJsonException(){
+        return "Algo está errado no corpo da sua requisição, verifique as virgulas, aspas, chaves ou valores inválidos!";
     }
 }

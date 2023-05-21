@@ -47,7 +47,7 @@ public class CondutorController {
     @PutMapping
     public ResponseEntity<?> editarCondutor(
             @RequestParam("id") final Long id,
-            @RequestBody final Condutor condutor
+            @RequestBody @Validated final Condutor condutor
     ){
         try {
             final Condutor condutorBanco = this.condutorService.editar(id, condutor);
