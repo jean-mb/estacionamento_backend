@@ -8,6 +8,7 @@ import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -26,7 +27,7 @@ public class Movimentacao extends AbstractEntity {
 
     @Getter @Setter
     @Column(name = "tempo_estacionado")
-    private LocalTime tempoEstacionado;
+    private BigDecimal tempoEstacionadoSegundos;
 
     @Getter @Setter
     @Column(name = "tempo_multa")

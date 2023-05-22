@@ -20,7 +20,8 @@ public class ConfiguracaoController {
 
     @GetMapping
     public ResponseEntity<?> getConfiguracao(){
-        return ResponseEntity.ok(this.configuracaoRepository.findAll());
+        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
+        return configuracao == null ? ResponseEntity.badRequest().body("Nenhuma configuracao encontrada") : ResponseEntity.ok(configuracao);
     }
 
     @PostMapping

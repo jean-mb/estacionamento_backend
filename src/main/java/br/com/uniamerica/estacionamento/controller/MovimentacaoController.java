@@ -36,7 +36,7 @@ public class MovimentacaoController {
     @PostMapping("/nova")
     public ResponseEntity<?> novaMovimentacao(@RequestBody @Validated final Movimentacao movimentacao){
         try {
-            final Movimentacao movimentacaoBanco = this.movimentacaoService.cadastrar(movimentacao);
+            final Movimentacao movimentacaoBanco = this.movimentacaoService.novaMovimentacao(movimentacao);
             return ResponseEntity.ok(String.format("Movimentação [ %s ] cadastrada com sucesso", movimentacaoBanco.getId()));
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
