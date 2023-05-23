@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -47,7 +48,7 @@ public class MovimentacaoService {
     }
 
     @Transactional
-    public Movimentacao editar(Long id, Movimentacao movimentacao){
+    public ResponseEntity<?> editar(Long id, Movimentacao movimentacao){
         /*
          * Verifica se a movimentação existe
          */
@@ -73,8 +74,11 @@ public class MovimentacaoService {
         Assert.notNull(condutor, "Condutor não existe!");
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
-
+        String resposta;
         if (movimentacao.getDataSaida() != null){
+            //      -------------------------------------------------------------------
+            //      CALCULA TEMPO ESTACIONADO
+
             final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
             LocalDateTime dataEntrada = movimentacao.getDataEntrada();
             LocalDateTime dataSaida = movimentacao.getDataSaida();
@@ -85,13 +89,21 @@ public class MovimentacaoService {
 
             movimentacao.setTempoEstacionadoSegundos(tempoEstacionadoTotal);
             //      -------------------------------------------------------------------
+            //      CALCULA VALOR TEMPO ESTACIONAMENTO
+            final BigDecimal valorHora = configuracao.getValorHora();
+            System.out.println(valorHora);
+            final BigDecimal tempoEstacionadoHoras = tempoEstacionadoTotal.divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+            System.out.println(tempoEstacionadoHoras);
+            final BigDecimal valorHoraEstacionada = valorHora.multiply(tempoEstacionadoHoras).setScale(2, BigDecimal.ROUND_HALF_UP);
+            System.out.println(valorHoraEstacionada);
+            movimentacao.setValorHora(valorHoraEstacionada);
+            //      -------------------------------------------------------------------
             //      CALCULA TEMPO MULTA
 
             long multaSegundos = 0;
 
             final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
             long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();
-            System.out.println(dias);
 
             if (ano > 0) {
                 dias += 365 * ano;
@@ -121,16 +133,41 @@ public class MovimentacaoService {
             // -------------------------------------------------------------------
             // CALCULA VALOR MULTA
             final BigDecimal tempoMultaMinuto = tempoMultaSegundos.divide(BigDecimal.valueOf(60));
-            System.out.println(tempoMultaMinuto);
-            System.out.println(configuracao.getValorMulta());
             final BigDecimal valorMulta = tempoMultaMinuto.multiply(configuracao.getValorMulta());
-            System.out.println(valorMulta);
 
             movimentacao.setValorMulta(valorMulta);
-
+            // -------------------------------------------------------------------
+            // CALCULA VALOR MULTA
+            resposta = String.format(
+                    "\t\tMovimentação [ %s ] fechada! \n" +
+                            "  ------------------------------------------\n\n" +
+                            "\t\t\t Comprovante:\n\n" +
+                            "\tMovimentação número [ %s ]\n" +
+                            "\tCondutor:  %s \n" +
+                            "\tVeículo:  %s  - Placa  %s \n" +
+                            "\tTempo de Multa:  %s \n" +
+                            "\tTempo Descontado: %s \n" +
+                            "\tTempo Total Estacionado:  %s \n" +
+                            "\tValor da Multa: R$ %s" +
+                            "\tValor Total: R$ %s \n\n" +
+                            "\tValor a ser Pago: R$ %s ",
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getId()
+            );
+        }else{
+            resposta = String.format("Movimentação [ %s ] editada com sucesso!", movimentacao.getId());
         }
-
-        return this.movimentacaoRepository.save(movimentacao);
+        this.movimentacaoRepository.save(movimentacao);
+        return ResponseEntity.ok(resposta);
 
     }
     @Transactional

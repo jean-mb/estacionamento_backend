@@ -49,8 +49,7 @@ public class MovimentacaoController {
             @RequestBody @Validated final Movimentacao movimentacao
     ){
         try {
-            final Movimentacao movimentacaoBanco = this.movimentacaoService.editar(id, movimentacao);
-            return ResponseEntity.ok(String.format("Movimentação [ %s ] editado com sucesso", movimentacaoBanco.getId()));
+            return  this.movimentacaoService.editar(id, movimentacao);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
