@@ -55,16 +55,16 @@ public class MovimentacaoController {
         }
     }
 
-    @PutMapping("/fechar")
-    public ResponseEntity<?> fecharMovimentacao(
-            @RequestParam("id") final Long id
-    ){
-        try {
-            return this.movimentacaoService.fecharMovimentacao(id);
-        } catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+//    @PutMapping("/fechar")
+//    public ResponseEntity<?> fecharMovimentacao(
+//            @RequestParam("id") final Long id
+//    ){
+//        try {
+//            return this.movimentacaoService.fecharMovimentacao(id);
+//        } catch (Exception e){
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 
 
     @DeleteMapping
