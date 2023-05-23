@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public abstract class AbstractEntity {
     @Id
     @Getter
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(unique = true, nullable = false) // Cria a coluna no DB
     private Long id;
 

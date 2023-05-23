@@ -61,8 +61,7 @@ public class MovimentacaoController {
             @RequestParam("id") final Long id
     ){
         try {
-            final Movimentacao movimentacaoBanco = this.movimentacaoService.fecharMovimentacao(id);
-            return ResponseEntity.ok(String.format("Movimentação [ %s ] editado com sucesso", movimentacaoBanco.getId()));
+            return this.movimentacaoService.fecharMovimentacao(id);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
