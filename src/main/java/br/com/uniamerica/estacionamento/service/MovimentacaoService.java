@@ -77,8 +77,6 @@ public class MovimentacaoService {
         Assert.notNull(veiculo, "Veiculo não existe!");
         String resposta;
         if (movimentacao.getDataSaida() != null){
-
-
             //      -------------------------------------------------------------------
             //      CALCULA TEMPO ESTACIONADO
 
@@ -88,20 +86,18 @@ public class MovimentacaoService {
 
             Duration tempoEstacionado = Duration.between(dataEntrada, dataSaida);
 
-            long tempoEstacionadoTotal = tempoEstacionado.toSeconds();
+            BigDecimal tempoEstacionadoTotal = BigDecimal.valueOf(tempoEstacionado.toSeconds());
 
             movimentacao.setTempoEstacionadoSegundos(tempoEstacionadoTotal);
             //      -------------------------------------------------------------------
             //      CALCULA VALOR TEMPO ESTACIONAMENTO
-
             final BigDecimal valorHora = configuracao.getValorHora();
-
-            final BigDecimal tempoEstacionadoHoras = new BigDecimal(tempoEstacionadoTotal).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
-
+            System.out.println(valorHora);
+            final BigDecimal tempoEstacionadoHoras = tempoEstacionadoTotal.divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+            System.out.println(tempoEstacionadoHoras);
             final BigDecimal valorHoraEstacionada = valorHora.multiply(tempoEstacionadoHoras).setScale(2, BigDecimal.ROUND_HALF_UP);
-
+            System.out.println(valorHoraEstacionada);
             movimentacao.setValorHora(valorHoraEstacionada);
-
             //      -------------------------------------------------------------------
             //      CALCULA TEMPO MULTA
 
@@ -123,50 +119,26 @@ public class MovimentacaoService {
             }
 
             if (dias > 0) {
-                BigDecimal foraExpediente = new BigDecimal(Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds());
-
-                BigDecimal duracaoTotal = new BigDecimal(tempoEstacionado.toSeconds());
-
-                long multaTotalDias = duracaoTotal.subtract(foraExpediente.multiply(BigDecimal.valueOf(dias)).setScale(2)).longValue();
-
-                multaSegundos += duracaoTotal.longValue() - multaTotalDias;
+                int foraExpediente = (int) Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds();
+                System.out.println(foraExpediente);
+                int duracaoTotal = (int) tempoEstacionado.toSeconds();
+                System.out.println(duracaoTotal);
+                multaSegundos += duracaoTotal - (dias * foraExpediente);
 
             }
 
-            if (movimentacao.getDataSaida().toLocalTime().isAfter(configuracao.getHoraAbertura()) && movimentacao.getDataSaida().toLocalTime().isBefore(configuracao.getHoraFechamento()) ) {
-                long tempoSaida = (int) Duration.between(movimentacao.getDataSaida().toLocalTime(), configuracao.getHoraAbertura()).toSeconds();
-                tempoSaida *= -1;
-                multaSegundos -= tempoSaida;
+            BigDecimal tempoMultaSegundos = BigDecimal.valueOf(multaSegundos);
 
-            }
-
-            movimentacao.setTempoMultaSegundos(multaSegundos);
+            movimentacao.setTempoMultaSegundos(tempoMultaSegundos);
 
             // -------------------------------------------------------------------
             // CALCULA VALOR MULTA
-            final BigDecimal tempoMultaMinuto = BigDecimal.valueOf(multaSegundos).divide(BigDecimal.valueOf(60), RoundingMode.DOWN);
+            final BigDecimal tempoMultaMinuto = tempoMultaSegundos.divide(BigDecimal.valueOf(60));
             final BigDecimal valorMulta = tempoMultaMinuto.multiply(configuracao.getValorMulta());
 
             movimentacao.setValorMulta(valorMulta);
             // -------------------------------------------------------------------
-            // CALCULA VALOR TOTAL
-            final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionada);
-
-            movimentacao.setValorTotal(valorTotal);
-
-            // -------------------------------------------------------------------
-            // CALCULA VALOR TOTAL
-
-
-            // -------------------------------------------------------------------
-            // GERA COMPROVANTE
-
-            final Integer horasEstacionadasComprovante = tempoEstacionadoHoras.intValue();
-            final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
-            System.out.println(horasEstacionadasComprovante);
-            System.out.println(minutosEstacionadosComprovante);
-
-            final String tempoEstacionadoString = String.format("%s:%s h", horasEstacionadasComprovante, minutosEstacionadosComprovante);
+            // CALCULA VALOR MULTA
             resposta = String.format(
                     "\t\tMovimentação [ %s ] fechada! \n" +
                             "  ---------------------------------------\n\n" +
@@ -205,84 +177,84 @@ public class MovimentacaoService {
         return ResponseEntity.ok(resposta);
 
     }
-//    @Transactional
-//    public ResponseEntity<?> fecharMovimentacao(Long id){
-//        final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
-//        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
-//        Assert.notNull(configuracao, "Sistema não configurado! Faça as configurações!");
-//        Assert.notNull(movimentacao, String.format("Movimentação com ID [ %s ] não existe!", id));
-//        String resposta;
-//        if(movimentacao.getDataSaida() == null) {
-//
-//            movimentacao.setDataSaida(LocalDateTime.now());
-//
-//            final LocalDateTime dataEntrada = movimentacao.getDataEntrada();
-//            final LocalDateTime dataSaida = movimentacao.getDataSaida();
-//            final Duration tempoEstacionado = Duration.between(dataEntrada, dataSaida);
-//            final BigDecimal tempoEstacionadoTotal = BigDecimal.valueOf(tempoEstacionado.toSeconds());
-//
-//            movimentacao.setTempoEstacionadoSegundos(tempoEstacionadoTotal);
-//
-//            //      -------------------------------------------------------------------
-//            //      CALCULA MULTA
-//
-//            long multaSegundos = 0;
-//
-//            final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
-//            long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();
-//
-//            if (ano > 0) {
-//                dias += 365 * ano;
-//            }
-//
-//            if (movimentacao.getDataEntrada().toLocalTime().isBefore(configuracao.getHoraAbertura())) {
-//                multaSegundos += Duration.between(movimentacao.getDataEntrada().toLocalTime(), configuracao.getHoraAbertura()).toSeconds();
-//            }
-//
-//            if (movimentacao.getDataSaida().toLocalTime().isAfter(configuracao.getHoraFechamento())) {
-//                multaSegundos += Duration.between(configuracao.getHoraFechamento(), movimentacao.getDataSaida().toLocalTime()).toSeconds();
-//            }
-//
-//            if (dias > 0) {
-//                int duracaoExpediente = (int) Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds();
-//                multaSegundos += dias * duracaoExpediente - duracaoExpediente;
-//            }
-//
-//            BigDecimal tempoMultaSegundos = BigDecimal.valueOf(multaSegundos);
-//
-//            movimentacao.setTempoMultaSegundos(tempoMultaSegundos);
-//
-//            this.movimentacaoRepository.save(movimentacao);
-//            resposta = String.format(
-//                    "\t\tMovimentação [ %s ] fechada! \n" +
-//                            "  ------------------------------------------\n\n" +
-//                            "\t\t\t Comprovante:\n\n" +
-//                            "\tMovimentação número [ %s ]\n" +
-//                            "\tCondutor:  %s \n" +
-//                            "\tVeículo:  %s  - Placa  %s \n" +
-//                            "\tTempo de Multa:  %s \n" +
-//                            "\tTempo Descontado: %s \n" +
-//                            "\tTempo Total Estacionado:  %s \n" +
-//                            "\tValor da Multa: R$ %s" +
-//                            "\tValor Total: R$ %s \n\n" +
-//                            "\tValor a ser Pago: R$ %s ",
-//                    movimentacao.getId(),
-//                    movimentacao.getId(),
-//                    movimentacao.getCondutor().getNome(),
-//                    movimentacao.getVeiculo().getModelo().getNome(),
-//                    movimentacao.getVeiculo().getPlaca(),
-//                    movimentacao.getTempoMultaSegundos(),
-//                    movimentacao.getValorTotal(),
-//                    movimentacao.getTempoEstacionadoSegundos(),
-//                    movimentacao.getValorMulta(),
-//                    movimentacao.getValorTotal(),
-//                    movimentacao.getValorTotal()
-//            );
-//        }else{
-//            resposta = String.format("Movimentação [ %s ] já está fechada!", movimentacao.getId());
-//        }
-//        return ResponseEntity.ok(resposta);
-//    }
+    @Transactional
+    public ResponseEntity<?> fecharMovimentacao(Long id){
+        final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
+        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
+        Assert.notNull(configuracao, "Sistema não configurado! Faça as configurações!");
+        Assert.notNull(movimentacao, String.format("Movimentação com ID [ %s ] não existe!", id));
+        String resposta;
+        if(movimentacao.getDataSaida() == null) {
+
+            movimentacao.setDataSaida(LocalDateTime.now());
+
+            final LocalDateTime dataEntrada = movimentacao.getDataEntrada();
+            final LocalDateTime dataSaida = movimentacao.getDataSaida();
+            final Duration tempoEstacionado = Duration.between(dataEntrada, dataSaida);
+            final BigDecimal tempoEstacionadoTotal = BigDecimal.valueOf(tempoEstacionado.toSeconds());
+
+            movimentacao.setTempoEstacionadoSegundos(tempoEstacionadoTotal);
+
+            //      -------------------------------------------------------------------
+            //      CALCULA MULTA
+
+            long multaSegundos = 0;
+
+            final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
+            long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();
+
+            if (ano > 0) {
+                dias += 365 * ano;
+            }
+
+            if (movimentacao.getDataEntrada().toLocalTime().isBefore(configuracao.getHoraAbertura())) {
+                multaSegundos += Duration.between(movimentacao.getDataEntrada().toLocalTime(), configuracao.getHoraAbertura()).toSeconds();
+            }
+
+            if (movimentacao.getDataSaida().toLocalTime().isAfter(configuracao.getHoraFechamento())) {
+                multaSegundos += Duration.between(configuracao.getHoraFechamento(), movimentacao.getDataSaida().toLocalTime()).toSeconds();
+            }
+
+            if (dias > 0) {
+                int duracaoExpediente = (int) Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds();
+                multaSegundos += dias * duracaoExpediente - duracaoExpediente;
+            }
+
+            BigDecimal tempoMultaSegundos = BigDecimal.valueOf(multaSegundos);
+
+            movimentacao.setTempoMultaSegundos(tempoMultaSegundos);
+
+            this.movimentacaoRepository.save(movimentacao);
+            resposta = String.format(
+                    "\t\tMovimentação [ %s ] fechada! \n" +
+                            "  ------------------------------------------\n\n" +
+                            "\t\t\t Comprovante:\n\n" +
+                            "\tMovimentação número [ %s ]\n" +
+                            "\tCondutor:  %s \n" +
+                            "\tVeículo:  %s  - Placa  %s \n" +
+                            "\tTempo de Multa:  %s \n" +
+                            "\tTempo Descontado: %s \n" +
+                            "\tTempo Total Estacionado:  %s \n" +
+                            "\tValor da Multa: R$ %s" +
+                            "\tValor Total: R$ %s \n\n" +
+                            "\tValor a ser Pago: R$ %s ",
+                    movimentacao.getId(),
+                    movimentacao.getId(),
+                    movimentacao.getCondutor().getNome(),
+                    movimentacao.getVeiculo().getModelo().getNome(),
+                    movimentacao.getVeiculo().getPlaca(),
+                    movimentacao.getTempoMultaSegundos(),
+                    movimentacao.getValorTotal(),
+                    movimentacao.getTempoEstacionadoSegundos(),
+                    movimentacao.getValorMulta(),
+                    movimentacao.getValorTotal(),
+                    movimentacao.getValorTotal()
+            );
+        }else{
+            resposta = String.format("Movimentação [ %s ] já está fechada!", movimentacao.getId());
+        }
+        return ResponseEntity.ok(resposta);
+    }
 
 
     @Transactional

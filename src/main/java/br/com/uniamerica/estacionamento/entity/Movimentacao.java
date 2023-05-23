@@ -27,15 +27,11 @@ public class Movimentacao extends AbstractEntity {
 
     @Getter @Setter
     @Column(name = "tempo_estacionado")
-    private long tempoEstacionadoSegundos;
+    private BigDecimal tempoEstacionadoSegundos;
 
     @Getter @Setter
     @Column(name = "tempo_multa")
-    private long tempoMultaSegundos;
-
-    @Getter @Setter
-    @Column(name = "tempo_desconto")
-    private long tempoDescontoSegundos;
+    private BigDecimal tempoMultaSegundos;
 
     @NotNull(message = "O Veiculo estacionado deve ser informado!")
     @Getter @Setter
