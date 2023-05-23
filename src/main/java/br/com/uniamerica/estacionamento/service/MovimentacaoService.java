@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -94,13 +95,10 @@ public class MovimentacaoService {
             //      CALCULA VALOR TEMPO ESTACIONAMENTO
 
             final BigDecimal valorHora = configuracao.getValorHora();
-            System.out.println(valorHora);
 
             final BigDecimal tempoEstacionadoHoras = new BigDecimal(tempoEstacionadoTotal).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
-            System.out.println(tempoEstacionadoHoras);
 
             final BigDecimal valorHoraEstacionada = valorHora.multiply(tempoEstacionadoHoras).setScale(2, BigDecimal.ROUND_HALF_UP);
-            System.out.println(valorHoraEstacionada);
 
             movimentacao.setValorHora(valorHoraEstacionada);
 
@@ -126,10 +124,8 @@ public class MovimentacaoService {
 
             if (dias > 0) {
                 BigDecimal foraExpediente = new BigDecimal(Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds());
-                System.out.println(foraExpediente);
 
                 BigDecimal duracaoTotal = new BigDecimal(tempoEstacionado.toSeconds());
-                System.out.println(duracaoTotal);
 
                 long multaTotalDias = duracaoTotal.subtract(foraExpediente.multiply(BigDecimal.valueOf(dias)).setScale(2)).longValue();
 
@@ -137,11 +133,18 @@ public class MovimentacaoService {
 
             }
 
+            if (movimentacao.getDataSaida().toLocalTime().isAfter(configuracao.getHoraAbertura()) && movimentacao.getDataSaida().toLocalTime().isBefore(configuracao.getHoraFechamento()) ) {
+                long tempoSaida = (int) Duration.between(movimentacao.getDataSaida().toLocalTime(), configuracao.getHoraAbertura()).toSeconds();
+                tempoSaida *= -1;
+                multaSegundos -= tempoSaida;
+
+            }
+
             movimentacao.setTempoMultaSegundos(multaSegundos);
 
             // -------------------------------------------------------------------
             // CALCULA VALOR MULTA
-            final BigDecimal tempoMultaMinuto = BigDecimal.valueOf(multaSegundos).divide(BigDecimal.valueOf(60), 2);
+            final BigDecimal tempoMultaMinuto = BigDecimal.valueOf(multaSegundos).divide(BigDecimal.valueOf(60), RoundingMode.DOWN);
             final BigDecimal valorMulta = tempoMultaMinuto.multiply(configuracao.getValorMulta());
 
             movimentacao.setValorMulta(valorMulta);
@@ -151,32 +154,49 @@ public class MovimentacaoService {
 
             movimentacao.setValorTotal(valorTotal);
 
+            // -------------------------------------------------------------------
+            // CALCULA VALOR TOTAL
 
 
+            // -------------------------------------------------------------------
+            // GERA COMPROVANTE
+
+            final Integer horasEstacionadasComprovante = tempoEstacionadoHoras.intValue();
+            final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
+            System.out.println(horasEstacionadasComprovante);
+            System.out.println(minutosEstacionadosComprovante);
+
+            final String tempoEstacionadoString = String.format("%s:%s h", horasEstacionadasComprovante, minutosEstacionadosComprovante);
             resposta = String.format(
                     "\t\tMovimentação [ %s ] fechada! \n" +
-                            "  ------------------------------------------\n\n" +
+                            "  ---------------------------------------\n\n" +
                             "\t\t\t Comprovante:\n\n" +
-                            "\tMovimentação número [ %s ]\n" +
+                            "\t\tMovimentação número [ %s ]\n\n" +
                             "\tCondutor:  %s \n" +
-                            "\tVeículo:  %s  - Placa  %s \n" +
-                            "\tTempo de Multa:  %s \n" +
-                            "\tTempo Descontado: %s \n" +
-                            "\tTempo Total Estacionado:  %s \n" +
-                            "\tValor da Multa: R$ %s" +
-                            "\tValor Total: R$ %s \n\n" +
+                            "\tVeículo:  %s -  %s \n\n" +
+                            "\t------------------------------\n\n" +
+                            "\tTempo de Multa: %s minutos \n" +
+                            "\tTempo Total Estacionado: %s \n" +
+                            "\tTempo Descontado: %s \n\n" +
+                            "\t------------------------------\n\n" +
+                            "\tValor da Multa: R$ %s\n" +
+                            "\tValor da Hora Estacionada: R$ %s\n" +
+                            "\tValor Total: R$ %s \n" +
+                            "\tValor Descontado: R$ %s\n\n" +
                             "\tValor a ser Pago: R$ %s ",
                     movimentacao.getId(),
                     movimentacao.getId(),
+                    movimentacao.getCondutor().getNome(),
+                    movimentacao.getVeiculo().getModelo().getNome(),
+                    movimentacao.getVeiculo().getPlaca(),
+                    tempoMultaMinuto,
+                    tempoEstacionadoString,
                     movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId(),
-                    movimentacao.getId()
+                    movimentacao.getValorHora(),
+                    movimentacao.getValorMulta(),
+                    movimentacao.getValorTotal(),
+                    movimentacao.getValorTotal(),
+                    movimentacao.getValorTotal()
             );
         }else{
             resposta = String.format("Movimentação [ %s ] editada com sucesso!", movimentacao.getId());
