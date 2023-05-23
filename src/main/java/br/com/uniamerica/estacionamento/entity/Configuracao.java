@@ -28,6 +28,15 @@ public class Configuracao extends AbstractEntity {
     @Column(name = "qntd_moto")
     private int qntdMoto;
 
+    @Getter @Setter
+    @Column(name = "horas_para_desconto")
+    private long horasParaDesconto;
+
+    @Getter @Setter
+    @Column(name = "horas_desconto")
+    private long horasDesconto;
+
+
     @NotNull(message = "O valor da hora não pode ser zero!")
     @Getter @Setter
     @Column(name = "valor_hora", nullable = false)

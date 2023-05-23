@@ -41,10 +41,10 @@ public class Condutor extends AbstractEntity {
     private String telefone;
 
     @Getter @Setter
-    @Column(name = "tempo_gasto")
-    private LocalTime tempoPago;
+    @Column(name = "tempo_gasto_segundos")
+    private Long tempoPagoSegundos;
 
     @Getter @Setter
-    @Column(name = "tempo_desconto")
-    private LocalTime tempoDesconto;
+    @Column(name = "tempo_desconto_segundos")
+    private Long tempoDescontoSegundos;
 }

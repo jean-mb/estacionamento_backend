@@ -141,11 +141,19 @@ public class MovimentacaoService {
             final BigDecimal valorMulta = tempoMultaMinuto.multiply(configuracao.getValorMulta());
 
             movimentacao.setValorMulta(valorMulta);
+
+            // -------------------------------------------------------------------
+            // CALCULA DESCONTO
+
+
+
+
             // -------------------------------------------------------------------
             // CALCULA VALOR TOTAL
             final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionada);
 
             movimentacao.setValorTotal(valorTotal);
+
 
             // -------------------------------------------------------------------
             // GERA COMPROVANTE
@@ -154,7 +162,7 @@ public class MovimentacaoService {
             final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
 
             final String entradaString = String.format(
-                    "%02d/%02d/%s - %s:%s h",
+                    "%02d/%02d/%s - %s:%02d h",
                     dataEntrada.getDayOfMonth(),
                     dataEntrada.getMonthValue(),
                     dataEntrada.getYear(),
@@ -163,7 +171,7 @@ public class MovimentacaoService {
             );
 
             final String saidaString = String.format(
-                    "%02d/%02d/%s - %s:%s h",
+                    "%02d/%02d/%s - %s:%02d h",
                     dataSaida.getDayOfMonth(),
                     dataSaida.getMonthValue(),
                     dataSaida.getYear(),
