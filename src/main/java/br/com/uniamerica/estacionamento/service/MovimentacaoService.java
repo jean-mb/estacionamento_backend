@@ -205,7 +205,7 @@ public class MovimentacaoService {
 
             final BigDecimal valorHoraEstacionadaFinal = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
 
-
+            final BigDecimal c = BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos()).divide(BigDecimal.valueOf(3600));
             final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionadaFinal);
             final BigDecimal valorTotalSemDesconto = valorMulta.add(valorHoraSemDesconto);
             final BigDecimal valorDescontado = valorTotalSemDesconto.subtract(valorTotal);
@@ -217,6 +217,12 @@ public class MovimentacaoService {
 
             final Integer horasEstacionadasComprovante = tempoEstacionadoHoras.intValue();
             final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
+
+            final BigDecimal tempoDescontoHoras = new BigDecimal(movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+            final Integer horasDescontoomprovante = tempoDescontoHoras.intValue();
+            final Integer minutosDescontoComprovante= tempoDescontoHoras.subtract(BigDecimal.valueOf(horasDescontoomprovante)).multiply(BigDecimal.valueOf(60)).intValue();
+
+            final String valorDescontadoString = String.format(" %s:%02d h", horasDescontoomprovante, minutosDescontoComprovante);
 
             final String entradaString = String.format(
                     "%02d/%02d/%s - %s:%02d h",
@@ -265,7 +271,7 @@ public class MovimentacaoService {
                     saidaString,
                     tempoMultaMinuto,
                     tempoEstacionadoString,
-                    movimentacao.getId(),
+                    valorDescontadoString,
                     movimentacao.getValorMulta(),
                     valorHoraSemDesconto,
                     valorTotalSemDesconto,
