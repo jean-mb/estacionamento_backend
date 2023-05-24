@@ -25,6 +25,10 @@ public class CondutorService {
 
         final Condutor condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
         Assert.isNull(condutorByCpf, String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
+
+        condutor.setTempoDescontoSegundos(0L);
+        condutor.setTempoDescontoUsadoSegundos(0L);
+        condutor.setTempoPagoSegundos(0L);
         return this.condutorRepository.save(condutor);
     }
 

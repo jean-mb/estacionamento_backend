@@ -57,6 +57,7 @@ public class Movimentacao extends AbstractEntity {
     @Column(name = "valor_multa")
     private BigDecimal valorMulta;
 
+
     @Getter @Setter
     @Column(name = "valor_total")
     private BigDecimal valorTotal;

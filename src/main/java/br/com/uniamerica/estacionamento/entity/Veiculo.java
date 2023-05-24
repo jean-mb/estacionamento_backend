@@ -28,7 +28,7 @@ public class Veiculo extends AbstractEntity {
     private Cor cor;
 
     @NotNull(message = "O tipo do Veiculo deve ser informado!")
-    @Getter @Setter
+    @Getter() @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false, length = 6)
     private Tipo tipo;

@@ -47,4 +47,8 @@ public class Condutor extends AbstractEntity {
     @Getter @Setter
     @Column(name = "tempo_desconto_segundos")
     private Long tempoDescontoSegundos;
+
+    @Getter @Setter
+    @Column(name = "tempo_desconto_usado_segundos")
+    private Long tempoDescontoUsadoSegundos;
 }

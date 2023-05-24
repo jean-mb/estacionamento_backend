@@ -97,9 +97,6 @@ public class MovimentacaoService {
 
             final BigDecimal tempoEstacionadoHoras = new BigDecimal(tempoEstacionadoTotal).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
 
-            final BigDecimal valorHoraEstacionada = valorHora.multiply(tempoEstacionadoHoras).setScale(2, BigDecimal.ROUND_HALF_UP);
-
-            movimentacao.setValorHora(valorHoraEstacionada);
 
             //      -------------------------------------------------------------------
             //      CALCULA TEMPO MULTA
@@ -146,10 +143,67 @@ public class MovimentacaoService {
             // CALCULA DESCONTO
 
 
+            long tempoPagoSegundos = condutor.getTempoPagoSegundos();
+            long tempoMovSegundos = movimentacao.getTempoEstacionadoSegundos();
 
+            long tempoParaDesconto = configuracao.getHorasParaDesconto()*3600;
+
+            int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.DOWN).intValue();
+            int totalHorasEstacionadasCondutor = BigDecimal.valueOf(tempoPagoSegundos).add(BigDecimal.valueOf(tempoMovSegundos)).intValue();
+            int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto)).intValue();
+
+
+            System.out.println(tempoPagoSegundos);
+            System.out.println(tempoMovSegundos);
+            System.out.println(tempoParaDesconto);
+            System.out.println(multiplicadorAtual);
+            System.out.println(totalHorasEstacionadasCondutor);
+            System.out.println(multiplicadorProximo);
+
+            if (multiplicadorProximo  > multiplicadorAtual) {
+                System.out.println("if 1");
+
+                int multiplicadorFinal = multiplicadorProximo - multiplicadorAtual;
+                long desconto = (long) (multiplicadorFinal * configuracao.getHorasDesconto() * 3600);
+
+                long descontoAtual = condutor.getTempoDescontoSegundos();
+                long descontoNovo = descontoAtual + desconto;
+
+                condutor.setTempoDescontoSegundos(descontoNovo);
+
+            }
+            if (condutor.getTempoDescontoSegundos() != 0) {
+                System.out.println("if 2");
+
+                long sobraDesconto = condutor.getTempoDescontoSegundos() - tempoMovSegundos;
+                long tempoDesconto;
+                if(sobraDesconto <= 0){
+                    tempoDesconto = movimentacao.getTempoEstacionadoSegundos();
+                    sobraDesconto = 0;
+                }else{
+                    System.out.println("else 1");
+                    tempoDesconto = movimentacao.getTempoEstacionadoSegundos() - condutor.getTempoDescontoSegundos();
+                    if (Math.abs(tempoDesconto) > movimentacao.getTempoEstacionadoSegundos()){
+                        tempoDesconto = movimentacao.getTempoEstacionadoSegundos();
+                    }
+                }
+                System.out.println(sobraDesconto);
+                movimentacao.setTempoDescontoSegundos(tempoDesconto);
+                long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
+                condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + condutor.getTempoDescontoSegundos() - sobraDesconto);
+                condutor.setTempoDescontoSegundos(sobraDesconto);
+            }else{
+                System.out.println("else 1");
+                long tempoPagoAdicionar = condutor.getTempoPagoSegundos();
+                condutor.setTempoPagoSegundos(tempoPagoAdicionar + movimentacao.getTempoEstacionadoSegundos());
+            }
 
             // -------------------------------------------------------------------
             // CALCULA VALOR TOTAL
+
+            final BigDecimal valorHoraEstacionada = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
+            movimentacao.setValorHora(valorHoraEstacionada);
+
             final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionada);
 
             movimentacao.setValorTotal(valorTotal);
