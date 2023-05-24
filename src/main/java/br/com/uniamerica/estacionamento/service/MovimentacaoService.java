@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class MovimentacaoService {
@@ -43,6 +44,9 @@ public class MovimentacaoService {
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
         Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
+
+        final List<Movimentacao> isEstacionado = this.movimentacaoRepository.getEstacionado(veiculo.getId());
+        Assert.isTrue(isEstacionado.isEmpty(), String.format("O veiculo [ %s ] já está estacionado no momento", veiculo.getPlaca()));
 
         Movimentacao novaMovimentacao = this.movimentacaoRepository.save(movimentacao);
         Assert.notNull(novaMovimentacao, "Não foi possível criar  movimentação");
