@@ -200,12 +200,15 @@ public class MovimentacaoService {
 
             // -------------------------------------------------------------------
             // CALCULA VALOR TOTAL
+            final BigDecimal valorHoraSemDesconto = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos()).divide(BigDecimal.valueOf(3600), 2));
 
-            final BigDecimal valorHoraEstacionada = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
-            movimentacao.setValorHora(valorHoraEstacionada);
 
-            final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionada);
+            final BigDecimal valorHoraEstacionadaFinal = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
 
+
+            final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionadaFinal);
+            final BigDecimal valorTotalSemDesconto = valorMulta.add(valorHoraSemDesconto);
+            final BigDecimal valorDescontado = valorTotalSemDesconto.subtract(valorTotal);
             movimentacao.setValorTotal(valorTotal);
 
 
@@ -264,9 +267,9 @@ public class MovimentacaoService {
                     tempoEstacionadoString,
                     movimentacao.getId(),
                     movimentacao.getValorMulta(),
-                    movimentacao.getValorHora(),
-                    movimentacao.getValorTotal(),
-                    movimentacao.getValorTotal(),
+                    valorHoraSemDesconto,
+                    valorTotalSemDesconto,
+                    valorDescontado,
                     movimentacao.getValorTotal()
             );
         }else{
@@ -276,86 +279,6 @@ public class MovimentacaoService {
         return ResponseEntity.ok(resposta);
 
     }
-//    @Transactional
-//    public ResponseEntity<?> fecharMovimentacao(Long id){
-//        final Movimentacao movimentacao = this.movimentacaoRepository.findById(id).orElse(null);
-//        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
-//        Assert.notNull(configuracao, "Sistema não configurado! Faça as configurações!");
-//        Assert.notNull(movimentacao, String.format("Movimentação com ID [ %s ] não existe!", id));
-//        String resposta;
-//        if(movimentacao.getDataSaida() == null) {
-//
-//            movimentacao.setDataSaida(LocalDateTime.now());
-//
-//            final LocalDateTime dataEntrada = movimentacao.getDataEntrada();
-//            final LocalDateTime dataSaida = movimentacao.getDataSaida();
-//            final Duration tempoEstacionado = Duration.between(dataEntrada, dataSaida);
-//            final BigDecimal tempoEstacionadoTotal = BigDecimal.valueOf(tempoEstacionado.toSeconds());
-//
-//            movimentacao.setTempoEstacionadoSegundos(tempoEstacionadoTotal);
-//
-//            //      -------------------------------------------------------------------
-//            //      CALCULA MULTA
-//
-//            long multaSegundos = 0;
-//
-//            final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
-//            long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();
-//
-//            if (ano > 0) {
-//                dias += 365 * ano;
-//            }
-//
-//            if (movimentacao.getDataEntrada().toLocalTime().isBefore(configuracao.getHoraAbertura())) {
-//                multaSegundos += Duration.between(movimentacao.getDataEntrada().toLocalTime(), configuracao.getHoraAbertura()).toSeconds();
-//            }
-//
-//            if (movimentacao.getDataSaida().toLocalTime().isAfter(configuracao.getHoraFechamento())) {
-//                multaSegundos += Duration.between(configuracao.getHoraFechamento(), movimentacao.getDataSaida().toLocalTime()).toSeconds();
-//            }
-//
-//            if (dias > 0) {
-//                int duracaoExpediente = (int) Duration.between(configuracao.getHoraAbertura(), configuracao.getHoraFechamento()).toSeconds();
-//                multaSegundos += dias * duracaoExpediente - duracaoExpediente;
-//            }
-//
-//            BigDecimal tempoMultaSegundos = BigDecimal.valueOf(multaSegundos);
-//
-//            movimentacao.setTempoMultaSegundos(tempoMultaSegundos);
-//
-//            this.movimentacaoRepository.save(movimentacao);
-//            resposta = String.format(
-//                    "\t\tMovimentação [ %s ] fechada! \n" +
-//                            "  ------------------------------------------\n\n" +
-//                            "\t\t\t Comprovante:\n\n" +
-//                            "\tMovimentação número [ %s ]\n" +
-//                            "\tCondutor:  %s \n" +
-//                            "\tVeículo:  %s  - Placa  %s \n" +
-//                            "\tTempo de Multa:  %s \n" +
-//                            "\tTempo Descontado: %s \n" +
-//                            "\tTempo Total Estacionado:  %s \n" +
-//                            "\tValor da Multa: R$ %s" +
-//                            "\tValor Total: R$ %s \n\n" +
-//                            "\tValor a ser Pago: R$ %s ",
-//                    movimentacao.getId(),
-//                    movimentacao.getId(),
-//                    movimentacao.getCondutor().getNome(),
-//                    movimentacao.getVeiculo().getModelo().getNome(),
-//                    movimentacao.getVeiculo().getPlaca(),
-//                    movimentacao.getTempoMultaSegundos(),
-//                    movimentacao.getValorTotal(),
-//                    movimentacao.getTempoEstacionadoSegundos(),
-//                    movimentacao.getValorMulta(),
-//                    movimentacao.getValorTotal(),
-//                    movimentacao.getValorTotal()
-//            );
-//        }else{
-//            resposta = String.format("Movimentação [ %s ] já está fechada!", movimentacao.getId());
-//        }
-//        return ResponseEntity.ok(resposta);
-//    }
-
-
     @Transactional
     public ResponseEntity<?> desativar(Long id){
         /*
