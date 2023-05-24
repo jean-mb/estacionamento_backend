@@ -9,7 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+/**
+ * @author Jean Moschen
+ * */
 
 @Service
 public class CondutorService {
@@ -21,25 +26,15 @@ public class CondutorService {
     @Transactional
     public Condutor cadastrar(final Condutor condutor){
 
-        Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
-        Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.isTrue(condutor.getNome().length() <= 50, String.format("Nome do condutor não pode ter mais que 50 caracteres! Nome informado tem %s caracteres!", condutor.getNome().length()));
+        final Condutor condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
+        Assert.isNull(condutorByCpf, String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
 
-        Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
-        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
-        Assert.isTrue(condutor.getCpf().length() <= 14,String.format("CPF do condutor não pode ter mais que 14 caracteres! CPF informado contem %s caracteres!", condutor.getCpf()));
-        final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
-        Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
-
-        final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
-        Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
-
-        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
-        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
-        Assert.isTrue(condutor.getTelefone().length() <= 15, String.format("Telefone do condutor não pode conter mais que 15 caracteres! Telefone informado contem %s caracteres!", condutor.getTelefone().length()));
-
+        condutor.setTempoDescontoSegundos(0L);
+        condutor.setTempoDescontoUsadoSegundos(0L);
+        condutor.setTempoPagoSegundos(0L);
         return this.condutorRepository.save(condutor);
     }
+
     @Transactional
     public Condutor editar(Long id, Condutor condutor){
         /*
@@ -49,31 +44,63 @@ public class CondutorService {
         Assert.notNull(condutorBanco, "Condutor não existe!");
 
         /*
-         * Verifica os condutor coincidem
+         * Verifica os condutores coincidem
          */
+        Assert.notNull(condutor.getId(), "ID do Condutor não informado no corpo da requisição");
         Assert.isTrue(condutorBanco.getId().equals(condutor.getId()), "Condutor informado não é o mesmo que o condutor a ser atualizado");
-
-        Assert.notNull(condutor.getNome(), "Nome do condutor não informado! Informe o nome do condutor");
-        Assert.hasText(condutor.getNome(), "Nome do condutor vazio! Informe o nome do condutor no campo 'nome'!");
-        Assert.isTrue(condutor.getNome().length() <= 50, String.format("Nome do condutor não pode ter mais que 50 caracteres! Nome informado tem %s caracteres!", condutor.getNome().length()));
-
-        Assert.notNull(condutor.getCpf(), "CPF do condutor não informado! Informe o CPF do condutor");
-        Assert.hasText(condutor.getCpf(), "CPF do condutor vazio!");
-        Assert.isTrue(condutor.getCpf().length() <= 14,String.format("CPF do condutor não pode ter mais que 14 caracteres! CPF informado contem %s caracteres!", condutor.getCpf()));
-        final String cpfFormat = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}";
-        Assert.isTrue(condutor.getCpf().matches(cpfFormat), "CPF em formato inválido. O formato deve ser 000.000.000-00");
-
-        final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
-        Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
-
-        Assert.notNull(condutor.getTelefone(), "Número de telefone não informado!");
-        Assert.hasText(condutor.getTelefone(), "Número de telefone vazio!");
-        Assert.isTrue(condutor.getTelefone().length() <= 15, String.format("Telefone do condutor não pode conter mais que 15 caracteres! Telefone informado contem %s caracteres!", condutor.getTelefone().length()));
-
-        Assert.notNull(condutor.getCadastro(), "Data de cadastro não informada!");
+        Assert.notNull(condutor.getCadastro(), "Data de Cadastro do Condutor não informado!");
 
         return this.condutorRepository.save(condutor);
     }
+
+    @Transactional
+    public ResponseEntity<?> relatorioPerfil(Long id){
+        /*
+         * Verifica se o condutor existe
+         */
+        final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
+        Assert.notNull(condutor, "Condutor não existe!");
+
+        final BigDecimal tempoPagoTotal = new BigDecimal(condutor.getTempoPagoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoPagoHoras = tempoPagoTotal.intValue();
+        final Integer tempoPagoHorasMinutos= tempoPagoTotal.subtract(BigDecimal.valueOf(tempoPagoHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final BigDecimal tempoDescontoDisponivel = new BigDecimal(condutor.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoDescontoDisponivelHoras = tempoDescontoDisponivel.intValue();
+        final Integer tempoDescontoDisponivelMinutos= tempoDescontoDisponivel.subtract(BigDecimal.valueOf(tempoDescontoDisponivelHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final BigDecimal tempoDescontoUtilizado = new BigDecimal(condutor.getTempoDescontoUsadoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoDescontoUtilizadoHoras = tempoDescontoUtilizado.intValue();
+        final Integer tempoDescontoUtilizadoMinutos= tempoDescontoUtilizado.subtract(BigDecimal.valueOf(tempoDescontoUtilizadoHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final String tempoPagoTotalString = String.format(" %s:%02d h", tempoPagoHoras, tempoPagoHorasMinutos);
+        final String tempoDescontoDisponivelString = String.format(" %s:%02d h", tempoDescontoDisponivelHoras, tempoDescontoDisponivelMinutos);
+        final String tempoDescontoUtilizadoString = String.format(" %s:%02d h", tempoDescontoUtilizadoHoras, tempoDescontoUtilizadoMinutos);
+
+
+        String relatorio;
+
+        relatorio = String.format(
+                "Dados do Cliente\n" +
+                        "--------------------------\n\n" +
+                        "Nome: %s\n" +
+                        "CPF: %s\n" +
+                        "Telefone: %s\n" +
+                        "Tempo Pago Total: %s\n" +
+                        "Tempo de Desconto Disponivel: %s\n" +
+                        "Tempo Total de Desconto Utilizado: %s\n",
+                condutor.getNome(),
+                condutor.getCpf(),
+                condutor.getTelefone(),
+                tempoPagoTotalString,
+                tempoDescontoDisponivelString,
+                tempoDescontoUtilizadoString
+        );
+
+        return ResponseEntity.ok(relatorio);
+
+    }
+
     @Transactional
     public ResponseEntity<?> desativar(Long id){
 

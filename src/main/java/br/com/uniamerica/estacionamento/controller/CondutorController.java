@@ -6,9 +6,10 @@ import br.com.uniamerica.estacionamento.service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "/api/condutor")
 public class CondutorController {
 
@@ -22,6 +23,10 @@ public class CondutorController {
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
         return condutor == null ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutor);
     }
+    @GetMapping("/relatorio")
+    public ResponseEntity<?> relatorio(@RequestParam("id") final Long id){
+        return this.condutorService.relatorioPerfil(id);
+    }
 
     @GetMapping("/lista")
     public ResponseEntity<?> listarAll(){
@@ -34,7 +39,7 @@ public class CondutorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrarCondutor(@RequestBody final Condutor condutor){
+    public ResponseEntity<?> cadastrarCondutor(@RequestBody @Validated final Condutor condutor){
         try {
             final Condutor newCondutor = this.condutorService.cadastrar(condutor);
             return ResponseEntity.ok(String.format("Condutor [ %s ] cadastrado com sucesso", newCondutor.getNome()));
@@ -46,7 +51,7 @@ public class CondutorController {
     @PutMapping
     public ResponseEntity<?> editarCondutor(
             @RequestParam("id") final Long id,
-            @RequestBody final Condutor condutor
+            @RequestBody @Validated final Condutor condutor
     ){
         try {
             final Condutor condutorBanco = this.condutorService.editar(id, condutor);

@@ -25,16 +25,10 @@ public class MarcaService {
     @Transactional
     public Marca cadastrar(Marca marca){
         /*
-        * Verifica se o nome da marca foi informado e se contem texto
-        * */
-        Assert.notNull(marca.getNome(), "Nome da marca não informado! Informe o nome da marca");
-        Assert.hasText(marca.getNome(), "Nome da marca está vazio! Escreva o nome da marca no campo 'nome'!");
-
-        /*
         * Verifica se a marca já existe
         * */
         final List<Marca> marcasByNome = this.marcaRepository.findByNome(marca.getNome());
-        Assert.isTrue(marcasByNome.isEmpty(), String.format( "Marca já [ %s ] já existe!", marca.getNome()));
+        Assert.isTrue(marcasByNome.isEmpty(), String.format( "Marca [ %s ] já existe!", marca.getNome()));
 
         return this.marcaRepository.save(marca);
     }
@@ -51,11 +45,12 @@ public class MarcaService {
          * Verifica se a marca já existe
          * */
         final List<Marca> marcasByNome = this.marcaRepository.findByNome(marca.getNome());
-        Assert.isTrue(marcasByNome.isEmpty(), String.format( "Marca já [ %s ] já existe!", marca.getNome()));
 
-        Assert.notNull(marca.getNome(), "Nome da marca não foi informado! Informe o nome da marca com o campo 'nome'");
-        Assert.hasText(marca.getNome(), "Nome da marca vazio! Informe o nome da marca no campo 'nome'");
-        Assert.notNull(marca.getCadastro(), "Data de cadastro não informada!");
+        if(!marcasByNome.isEmpty()){
+            Assert.isTrue(marcasByNome.get(0).getId().equals(marca.getId()), String.format("Marca com nome [ %s ] já existe!", marca.getNome()));
+        }
+
+        Assert.notNull(marca.getCadastro(), "Data de Cadastro não informada!");
         return this.marcaRepository.save(marca);
     }
     @Transactional

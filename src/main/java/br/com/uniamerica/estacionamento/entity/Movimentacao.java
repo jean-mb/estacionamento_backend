@@ -1,12 +1,14 @@
 package br.com.uniamerica.estacionamento.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -18,29 +20,44 @@ public class Movimentacao extends AbstractEntity {
     @Getter @Setter
     @Column(name = "data_entrada", nullable = false)
     private LocalDateTime dataEntrada;
+
     @Getter @Setter
     @Column(name = "data_saida")
     private LocalDateTime dataSaida;
+
     @Getter @Setter
     @Column(name = "tempo_estacionado")
-    private LocalTime tempoEstacionado;
+    private long tempoEstacionadoSegundos;
+
     @Getter @Setter
     @Column(name = "tempo_multa")
-    private LocalTime tempoMulta;
+    private long tempoMultaSegundos;
+
+    @Getter @Setter
+    @Column(name = "tempo_desconto")
+    private long tempoDescontoSegundos;
+
+    @NotNull(message = "O Veiculo estacionado deve ser informado!")
     @Getter @Setter
     @ManyToOne
     @JoinColumn(nullable = false)
     private Veiculo veiculo;
+
+    @NotNull(message = "O Condutor do Veiculo estacionado deve ser informado!")
     @Getter @Setter
     @ManyToOne
     @JoinColumn(nullable = false)
     private Condutor condutor;
+
     @Getter @Setter
     @Column(name = "valor_hora")
     private BigDecimal valorHora;
+
     @Getter @Setter
     @Column(name = "valor_multa")
     private BigDecimal valorMulta;
+
+
     @Getter @Setter
     @Column(name = "valor_total")
     private BigDecimal valorTotal;

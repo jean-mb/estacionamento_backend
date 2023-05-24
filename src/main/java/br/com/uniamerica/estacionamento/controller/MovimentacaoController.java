@@ -6,9 +6,10 @@ import br.com.uniamerica.estacionamento.service.MovimentacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/api/movimentacao")
 public class MovimentacaoController {
     @Autowired
@@ -32,24 +33,22 @@ public class MovimentacaoController {
         return ResponseEntity.ok(this.movimentacaoRepository.findAllAbertas());
     }
 
-    @PostMapping
-    public ResponseEntity<?> cadastrar(@RequestBody final Movimentacao movimentacao){
+    @PostMapping("/nova")
+    public ResponseEntity<?> novaMovimentacao(@RequestBody @Validated final Movimentacao movimentacao){
         try {
-            final Movimentacao movimentacaoBanco = this.movimentacaoService.cadastrar(movimentacao);
-            return ResponseEntity.ok(String.format("Movimentação [ %s ] cadastrada com sucesso", movimentacaoBanco.getId()));
+            return this.movimentacaoService.novaMovimentacao(movimentacao);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PutMapping
-    public ResponseEntity<?> atualizarMovimentacao(
+    @PutMapping("/editar")
+    public ResponseEntity<?> editarMovimentacao(
             @RequestParam("id") final Long id,
-            @RequestBody final Movimentacao movimentacao
+            @RequestBody @Validated final Movimentacao movimentacao
     ){
         try {
-            final Movimentacao movimentacaoBanco = this.movimentacaoService.editar(id, movimentacao);
-            return ResponseEntity.ok(String.format("Movimentação [ %s ] editado com sucesso", movimentacaoBanco.getId()));
+            return  this.movimentacaoService.editar(id, movimentacao);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
