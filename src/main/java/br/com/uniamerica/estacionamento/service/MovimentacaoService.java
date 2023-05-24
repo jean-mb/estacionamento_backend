@@ -145,55 +145,62 @@ public class MovimentacaoService {
 
             long tempoPagoSegundos = condutor.getTempoPagoSegundos();
             long tempoMovSegundos = movimentacao.getTempoEstacionadoSegundos();
-
             long tempoParaDesconto = configuracao.getHorasParaDesconto()*3600;
-
             int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.DOWN).intValue();
             int totalHorasEstacionadasCondutor = BigDecimal.valueOf(tempoPagoSegundos).add(BigDecimal.valueOf(tempoMovSegundos)).intValue();
             int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto)).intValue();
 
-
-            System.out.println(tempoPagoSegundos);
-            System.out.println(tempoMovSegundos);
-            System.out.println(tempoParaDesconto);
-            System.out.println(multiplicadorAtual);
-            System.out.println(totalHorasEstacionadasCondutor);
-            System.out.println(multiplicadorProximo);
-
+            // Se as novas horas pagas vão gerar desconto
             if (multiplicadorProximo  > multiplicadorAtual) {
-                System.out.println("if 1");
-
-                int multiplicadorFinal = multiplicadorProximo - multiplicadorAtual;
-                long desconto = (long) (multiplicadorFinal * configuracao.getHorasDesconto() * 3600);
-
+                long multiplicadorFinal = multiplicadorProximo - multiplicadorAtual;
+                long desconto = multiplicadorFinal * configuracao.getHorasDesconto() * 3600;
                 long descontoAtual = condutor.getTempoDescontoSegundos();
                 long descontoNovo = descontoAtual + desconto;
 
+                // Guarda o desconto no banco de horas
                 condutor.setTempoDescontoSegundos(descontoNovo);
+                condutor.setTempoPagoSegundos((long) totalHorasEstacionadasCondutor);
 
             }
-            if (condutor.getTempoDescontoSegundos() != 0) {
-                System.out.println("if 2");
+            // Se não gerou novas horas, confere se tem direito de abatimento
+            else if (condutor.getTempoDescontoSegundos() != 0) {
 
-                long sobraDesconto = condutor.getTempoDescontoSegundos() - tempoMovSegundos;
-                long tempoDesconto;
-                if(sobraDesconto <= 0){
-                    tempoDesconto = movimentacao.getTempoEstacionadoSegundos();
-                    sobraDesconto = 0;
-                }else{
-                    System.out.println("else 1");
-                    tempoDesconto = movimentacao.getTempoEstacionadoSegundos() - condutor.getTempoDescontoSegundos();
-                    if (Math.abs(tempoDesconto) > movimentacao.getTempoEstacionadoSegundos()){
-                        tempoDesconto = movimentacao.getTempoEstacionadoSegundos();
-                    }
+                // Horas que serão cobradas ( estacionadas - desconto
+                long horasCobradas = movimentacao.getTempoEstacionadoSegundos() - condutor.getTempoDescontoSegundos();
+
+                // Horas que sobrarão no banco de horas
+                long sobraDesconto;
+
+                // Se as horas de desconto cobrir as horas estacionadas
+                if(horasCobradas <= 0){
+                    System.out.println("if sobra menor que 0");
+                    sobraDesconto = Math.abs(horasCobradas);
+                    horasCobradas = 0;
+                    long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
+                    condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + sobraDesconto);
+                    condutor.setTempoDescontoSegundos(condutor.getTempoDescontoSegundos() - sobraDesconto);
                 }
-                System.out.println(sobraDesconto);
-                movimentacao.setTempoDescontoSegundos(tempoDesconto);
-                long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
-                condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + condutor.getTempoDescontoSegundos() - sobraDesconto);
-                condutor.setTempoDescontoSegundos(sobraDesconto);
+                // Se usar todas as horas de desconto e ainda sobrar horas estacionadas
+                else{
+                    System.out.println("sobra mais que zero");
+                    sobraDesconto = 0;
+                    long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
+                    condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + tempoMovSegundos - horasCobradas);
+                    condutor.setTempoDescontoSegundos(sobraDesconto);
+                }
+                // Aplica o desconto na movimentacao
+                long tempoDescontoSegundos = tempoMovSegundos - horasCobradas;
+                movimentacao.setTempoDescontoSegundos(tempoDescontoSegundos);
+
+                // Atualiza as horas de desconto utilizadas pelo condutor
+//                long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
+//                condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + sobraDesconto);
+//                condutor.setTempoDescontoSegundos(sobraDesconto);
+
+                condutor.setTempoPagoSegundos(tempoPagoSegundos + tempoMovSegundos - tempoDescontoSegundos);
+
             }else{
-                System.out.println("else 1");
+                System.out.println("ultmimo else");
                 long tempoPagoAdicionar = condutor.getTempoPagoSegundos();
                 condutor.setTempoPagoSegundos(tempoPagoAdicionar + movimentacao.getTempoEstacionadoSegundos());
             }
@@ -205,7 +212,6 @@ public class MovimentacaoService {
 
             final BigDecimal valorHoraEstacionadaFinal = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
 
-            final BigDecimal c = BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos()).divide(BigDecimal.valueOf(3600));
             final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionadaFinal);
             final BigDecimal valorTotalSemDesconto = valorMulta.add(valorHoraSemDesconto);
             final BigDecimal valorDescontado = valorTotalSemDesconto.subtract(valorTotal);
