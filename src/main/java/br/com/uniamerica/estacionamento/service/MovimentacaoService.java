@@ -34,6 +34,8 @@ public class MovimentacaoService {
         if (movimentacao.getDataEntrada() == null){
             movimentacao.setDataEntrada(LocalDateTime.now());
         }
+        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
+        Assert.notNull(configuracao, "Sistema não está configurado! Faça as configurações antes de abrir uma movimentação");
 
         final Condutor condutor = this.condutorRepository.findById(movimentacao.getCondutor().getId()).orElse(null);
         Assert.notNull(condutor, "Condutor não existe!");
@@ -191,8 +193,8 @@ public class MovimentacaoService {
                 sobraDesconto = Math.abs(horasCobradas);
                 horasCobradas = 0;
                 long tempoDescontoUsadoAnterior = condutor.getTempoDescontoUsadoSegundos();
-                condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + sobraDesconto);
-                condutor.setTempoDescontoSegundos(condutor.getTempoDescontoSegundos() - sobraDesconto);
+                condutor.setTempoDescontoUsadoSegundos(tempoDescontoUsadoAnterior + condutor.getTempoDescontoSegundos() - sobraDesconto);
+                condutor.setTempoDescontoSegundos(sobraDesconto);
             }
             // Se usar todas as horas de desconto e ainda sobrar horas estacionadas
             else{
