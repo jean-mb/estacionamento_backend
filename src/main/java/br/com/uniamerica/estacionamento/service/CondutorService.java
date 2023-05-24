@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * @author Jean Moschen
  * */
@@ -49,6 +52,55 @@ public class CondutorService {
 
         return this.condutorRepository.save(condutor);
     }
+
+    @Transactional
+    public ResponseEntity<?> relatorioPerfil(Long id){
+        /*
+         * Verifica se o condutor existe
+         */
+        final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
+        Assert.notNull(condutor, "Condutor não existe!");
+
+        final BigDecimal tempoPagoTotal = new BigDecimal(condutor.getTempoPagoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoPagoHoras = tempoPagoTotal.intValue();
+        final Integer tempoPagoHorasMinutos= tempoPagoTotal.subtract(BigDecimal.valueOf(tempoPagoHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final BigDecimal tempoDescontoDisponivel = new BigDecimal(condutor.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoDescontoDisponivelHoras = tempoDescontoDisponivel.intValue();
+        final Integer tempoDescontoDisponivelMinutos= tempoDescontoDisponivel.subtract(BigDecimal.valueOf(tempoDescontoDisponivelHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final BigDecimal tempoDescontoUtilizado = new BigDecimal(condutor.getTempoDescontoUsadoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final Integer tempoDescontoUtilizadoHoras = tempoDescontoUtilizado.intValue();
+        final Integer tempoDescontoUtilizadoMinutos= tempoDescontoUtilizado.subtract(BigDecimal.valueOf(tempoDescontoUtilizadoHoras)).multiply(BigDecimal.valueOf(60)).intValue();
+
+        final String tempoPagoTotalString = String.format(" %s:%02d h", tempoPagoHoras, tempoPagoHorasMinutos);
+        final String tempoDescontoDisponivelString = String.format(" %s:%02d h", tempoDescontoDisponivelHoras, tempoDescontoDisponivelMinutos);
+        final String tempoDescontoUtilizadoString = String.format(" %s:%02d h", tempoDescontoUtilizadoHoras, tempoDescontoUtilizadoMinutos);
+
+
+        String relatorio;
+
+        relatorio = String.format(
+                "Dados do Cliente\n" +
+                        "--------------------------\n\n" +
+                        "Nome: %s\n" +
+                        "CPF: %s\n" +
+                        "Telefone: %s\n" +
+                        "Tempo Pago Total: %s\n" +
+                        "Tempo de Desconto Disponivel: %s\n" +
+                        "Tempo Total de Desconto Utilizado: %s\n",
+                condutor.getNome(),
+                condutor.getCpf(),
+                condutor.getTelefone(),
+                tempoPagoTotalString,
+                tempoDescontoDisponivelString,
+                tempoDescontoUtilizadoString
+        );
+
+        return ResponseEntity.ok(relatorio);
+
+    }
+
     @Transactional
     public ResponseEntity<?> desativar(Long id){
 

@@ -23,6 +23,10 @@ public class CondutorController {
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
         return condutor == null ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutor);
     }
+    @GetMapping("/relatorio")
+    public ResponseEntity<?> relatorio(@RequestParam("id") final Long id){
+        return this.condutorService.relatorioPerfil(id);
+    }
 
     @GetMapping("/lista")
     public ResponseEntity<?> listarAll(){
