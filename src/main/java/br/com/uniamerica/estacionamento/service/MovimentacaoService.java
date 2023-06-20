@@ -40,7 +40,7 @@ public class MovimentacaoService {
 
         final Condutor condutor = this.condutorRepository.findById(movimentacao.getCondutor().getId()).orElse(null);
         Assert.notNull(condutor, "Condutor não existe!");
-        Assert.isTrue(condutor.isAtivo(), String.format("Contudor [ %s ] está desativado!", condutor.getNome()));
+        Assert.isTrue(condutor.isAtivo(), String.format("Condutor [ %s ] está desativado!", condutor.getNome()));
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
         Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
@@ -81,6 +81,8 @@ public class MovimentacaoService {
         Assert.notNull(condutor, "Condutor não existe!");
         final Veiculo veiculo = this.veiculoRepository.findById(movimentacao.getVeiculo().getId()).orElse(null);
         Assert.notNull(veiculo, "Veiculo não existe!");
+        Assert.isTrue(condutor.isAtivo(), String.format("Condutor [ %s ] está desativado!", condutor.getNome()));
+        Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
 
 
         String resposta;
@@ -266,7 +268,7 @@ public class MovimentacaoService {
                 dataSaida.getHour(),
                 dataSaida.getMinute()
         );
-        final String tempoEstacionadoString = String.format("%02d:%02d h", horasEstacionadasComprovante, minutosEstacionadosComprovante);
+        final String tempoEstacionadoString = String.format("%s:%02d h", horasEstacionadasComprovante, minutosEstacionadosComprovante);
 
         String resposta = String.format(
                 "\t\tMovimentação [ %s ] fechada! \n" +
