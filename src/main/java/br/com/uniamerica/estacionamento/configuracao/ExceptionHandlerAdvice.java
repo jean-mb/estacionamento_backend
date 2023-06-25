@@ -34,6 +34,6 @@ public class ExceptionHandlerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public String handleJsonException(){
-        return "Algo está errado no corpo da sua requisição, verifique as virgulas, aspas, chaves ou valores inválidos!";
+        return "Algo deu errado! :(";
     }
 }

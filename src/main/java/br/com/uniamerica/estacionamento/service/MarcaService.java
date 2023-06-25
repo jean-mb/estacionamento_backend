@@ -27,9 +27,9 @@ public class MarcaService {
         /*
         * Verifica se a marca já existe
         * */
+        marca.setNome(marca.getNome().trim());
         final List<Marca> marcasByNome = this.marcaRepository.findByNome(marca.getNome());
         Assert.isTrue(marcasByNome.isEmpty(), String.format( "Marca [ %s ] já existe!", marca.getNome()));
-
         return this.marcaRepository.save(marca);
     }
     @Transactional
@@ -44,6 +44,7 @@ public class MarcaService {
         /*
          * Verifica se a marca já existe
          * */
+        marca.setNome(marca.getNome().trim());
         final List<Marca> marcasByNome = this.marcaRepository.findByNome(marca.getNome());
 
         if(!marcasByNome.isEmpty()){

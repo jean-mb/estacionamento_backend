@@ -5,9 +5,11 @@ import br.com.uniamerica.estacionamento.repository.CondutorRepository;
 import br.com.uniamerica.estacionamento.service.CondutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/condutor")
@@ -23,6 +25,18 @@ public class CondutorController {
         final Condutor condutor = this.condutorRepository.findById(id).orElse(null);
         return condutor == null ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutor);
     }
+    @GetMapping("/nome")
+    public ResponseEntity<?> findByNome(@RequestParam("nome") final String nome){
+        final List<Condutor> condutores = this.condutorRepository.findByNome(nome);
+        return condutores.isEmpty() ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutores);
+    }
+    @GetMapping("/cpf")
+    public ResponseEntity<?> findByCpf(@RequestParam("cpf") final String cpf){
+        final List<Condutor> condutores = this.condutorRepository.findByCpf(cpf);
+        return condutores.isEmpty() ? ResponseEntity.badRequest().body("Nenhum condutor encontrado") : ResponseEntity.ok(condutores);
+    }
+
+
     @GetMapping("/relatorio")
     public ResponseEntity<?> relatorio(@RequestParam("id") final Long id){
         return this.condutorService.relatorioPerfil(id);

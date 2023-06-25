@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 /**
  * @author Jean Moschen
@@ -26,8 +27,8 @@ public class CondutorService {
     @Transactional
     public Condutor cadastrar(final Condutor condutor){
 
-        final Condutor condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
-        Assert.isNull(condutorByCpf, String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
+        final List<Condutor> condutorByCpf = this.condutorRepository.findByCpf(condutor.getCpf());
+        Assert.isTrue(condutorByCpf.isEmpty(), String.format("Condutor com CPF [ %s ] já existe!", condutor.getCpf()));
 
         condutor.setTempoDescontoSegundos(0L);
         condutor.setTempoDescontoUsadoSegundos(0L);

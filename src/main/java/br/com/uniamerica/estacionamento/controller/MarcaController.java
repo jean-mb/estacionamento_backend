@@ -1,5 +1,6 @@
 package br.com.uniamerica.estacionamento.controller;
 
+import br.com.uniamerica.estacionamento.entity.Condutor;
 import br.com.uniamerica.estacionamento.entity.Marca;
 import br.com.uniamerica.estacionamento.repository.MarcaRepository;
 import br.com.uniamerica.estacionamento.service.MarcaService;
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/marca")
@@ -25,7 +28,8 @@ public class MarcaController {
 
     @GetMapping("/lista")
     public ResponseEntity<?> listarAll(){
-        return ResponseEntity.ok(this.marcaRepository.findAll());
+        final List<Marca> marcas = this.marcaRepository.findAll();
+        return marcas.isEmpty() ? ResponseEntity.badRequest().body("Nenhuma marca encontrada! Cadastre-as!") : ResponseEntity.ok(marcas);
     }
     @GetMapping("/lista/ativos")
     public ResponseEntity<?> listarAtivos(){
