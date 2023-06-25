@@ -33,7 +33,8 @@ public class MarcaController {
     }
     @GetMapping("/lista/ativos")
     public ResponseEntity<?> listarAtivos(){
-        return ResponseEntity.ok(this.marcaRepository.findAllAtivo());
+        final List<Marca> marcas = this.marcaRepository.findAllAtivo();
+        return marcas.isEmpty() ? ResponseEntity.badRequest().body("Nenhuma marca encontrada! Cadastre-as!") : ResponseEntity.ok(marcas);
     }
 
     @PostMapping

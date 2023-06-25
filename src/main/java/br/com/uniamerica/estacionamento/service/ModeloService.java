@@ -31,6 +31,7 @@ public class ModeloService {
         /*
         * Verifica se o nome do modelo já existe
         * */
+        modelo.setNome(modelo.getNome().trim());
         final List<Modelo> modelosByNome = this.modeloRepository.findByNome(modelo.getNome());
         Assert.isTrue(modelosByNome.isEmpty(), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
 
@@ -67,6 +68,7 @@ public class ModeloService {
         /*
          * Verifica se o nome do modelo já existe
          * */
+        modelo.setNome(modelo.getNome().trim());
         final List<Modelo> modelosByNome = this.modeloRepository.findByNome(modelo.getNome());
         if (!modelosByNome.isEmpty()){
             Assert.isTrue(modelosByNome.get(0).getId().equals(modelo.getId()), String.format("Modelo [ %s ] já existe!", modelo.getNome()));
