@@ -24,6 +24,7 @@ public class VeiculoService {
 
     @Transactional
     public Veiculo cadastrar(Veiculo veiculo){
+        veiculo.setPlaca(veiculo.getPlaca().trim());
         final List<Veiculo> veiculosByPlaca = this.veiculoRepository.findByPlaca(veiculo.getPlaca());
         Assert.isTrue(veiculosByPlaca.isEmpty(),  String.format("Veiculo com placa [ %s ] já existe!", veiculo.getPlaca()));
 
@@ -47,6 +48,8 @@ public class VeiculoService {
          * Verifica os veiculos coincidem
          */
         Assert.isTrue(veiculoBanco.getId().equals(veiculo.getId()), "Veiculo informado não é o mesmo que o veiculo a ser atualizado");
+
+        veiculo.setPlaca(veiculo.getPlaca().trim());
         final List<Veiculo> veiculosByPlaca = this.veiculoRepository.findByPlaca(veiculo.getPlaca());
         if(!veiculosByPlaca.isEmpty()){
             Assert.isTrue(veiculosByPlaca.get(0).getId().equals(veiculo.getId()),  String.format("Veiculo com placa [ %s ] já existe!", veiculo.getPlaca()));

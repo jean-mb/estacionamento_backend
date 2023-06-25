@@ -35,7 +35,8 @@ public class VeiculoController {
     }
     @GetMapping("/lista/ativos")
     public ResponseEntity<?> listarAllAtivos(){
-        return ResponseEntity.ok(this.veiculoRepository.findAllAtivo());
+        final List<Veiculo> veiculos = this.veiculoRepository.findAllAtivo();
+        return veiculos.isEmpty() ? ResponseEntity.badRequest().body("Nenhum veiculo encontrado") : ResponseEntity.ok(veiculos);
     }
 
     @PostMapping

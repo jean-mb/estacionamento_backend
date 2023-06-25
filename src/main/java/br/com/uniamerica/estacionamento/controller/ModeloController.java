@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Modelo;
+import br.com.uniamerica.estacionamento.entity.Veiculo;
 import br.com.uniamerica.estacionamento.repository.ModeloRepository;
 import br.com.uniamerica.estacionamento.service.ModeloService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/modelo")
@@ -42,7 +45,8 @@ public class ModeloController {
 
     @GetMapping("/lista/ativos")
     public ResponseEntity<?> listarAtivos(){
-        return ResponseEntity.ok(this.modeloRepository.findAllAtivo());
+        final List<Modelo> modelos = this.modeloRepository.findAllAtivo();
+        return modelos.isEmpty() ? ResponseEntity.badRequest().body("Nenhum modelo encontrado! Cadastre-os!") : ResponseEntity.ok(modelos);
     }
 
     @PutMapping
