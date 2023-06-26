@@ -21,14 +21,14 @@ public class ConfiguracaoController {
     @GetMapping
     public ResponseEntity<?> getConfiguracao(){
         final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
-        return configuracao == null ? ResponseEntity.badRequest().body("Nenhuma configuracao encontrada") : ResponseEntity.ok(configuracao);
+        return configuracao == null ? ResponseEntity.badRequest().body("Nenhuma configuração encontrada! Configure o sistema.") : ResponseEntity.ok(configuracao);
     }
 
     @PostMapping
     public ResponseEntity<?> primeiraConfiguracao(@RequestBody @Validated final Configuracao configuracao){
         try {
             final Configuracao configuracaoBanco = this.configuracaoService.cadastrar(configuracao);
-            return ResponseEntity.ok("Configuracao feita com sucesso!");
+            return ResponseEntity.ok("Configuração feita com sucesso!");
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

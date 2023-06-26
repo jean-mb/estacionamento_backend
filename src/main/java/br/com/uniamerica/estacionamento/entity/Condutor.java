@@ -10,7 +10,6 @@ import lombok.Setter;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalTime;
@@ -35,9 +34,9 @@ public class Condutor extends AbstractEntity {
 
     @NotNull(message = "Número de telefone do condutor precisa ser informado")
     @NotBlank(message = "Número de telefone foi informado vazio!")
-    @Length(max = 15, message = "Número do telefone deve conter no máximo 15 caracteres")
+    @Length(max = 25, message = "Número do telefone deve conter no máximo 25 caracteres")
     @Getter @Setter
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 25)
     private String telefone;
 
     @Getter @Setter

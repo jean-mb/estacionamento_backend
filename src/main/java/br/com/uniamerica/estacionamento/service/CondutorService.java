@@ -116,7 +116,7 @@ public class CondutorService {
          * True: Desativa o cadastro
          * False: Faz o DELETE do registro
          * */
-        if(!this.movimentacaoRepository.findByVeiculoId(id).isEmpty()){
+        if(!this.movimentacaoRepository.findByCondutorId(id).isEmpty()){
             condutorBanco.setAtivo(false);
             this.condutorRepository.save(condutorBanco);
             return ResponseEntity.ok( String.format("Condutor [ %s ] DESATIVADO pois está relacionado a movimentações!", condutorBanco.getNome()));

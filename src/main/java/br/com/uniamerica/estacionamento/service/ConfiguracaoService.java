@@ -20,7 +20,7 @@ public class ConfiguracaoService {
         * Verifica se já não existe uma configuração vigente
         * */
         final Configuracao isPrimeiraConfiguracao = this.configuracaoRepository.getConfiguracao();
-        Assert.isNull(isPrimeiraConfiguracao, "Já existe uma configuração vigente, se quiser fazer alterações, edite-a com o método PUT");
+        Assert.isNull(isPrimeiraConfiguracao, "Já existe uma configuração vigente, se quiser fazer alterações, edite-a!");
         Assert.isTrue(configuracao.getHoraAbertura().isBefore(configuracao.getHoraFechamento()), "O horário de abertura deve ser anterior ao horário de fechamento.");
         return this.configuracaoRepository.save(configuracao);
     }
