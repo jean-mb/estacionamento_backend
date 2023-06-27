@@ -155,7 +155,7 @@ public class MovimentacaoService {
 
         // -------------------------------------------------------------------
         // CALCULA VALOR MULTA
-        final BigDecimal tempoMultaMinuto = BigDecimal.valueOf(multaSegundos).divide(BigDecimal.valueOf(60), 2);
+        final BigDecimal tempoMultaMinuto = BigDecimal.valueOf(multaSegundos).divide(BigDecimal.valueOf(60), RoundingMode.CEILING);
         final BigDecimal valorMulta = tempoMultaMinuto.multiply(configuracao.getValorMulta());
 
         movimentacao.setValorMulta(valorMulta);
@@ -167,9 +167,9 @@ public class MovimentacaoService {
         long tempoPagoSegundos = condutor.getTempoPagoSegundos();
         long tempoMovSegundos = movimentacao.getTempoEstacionadoSegundos();
         long tempoParaDesconto = configuracao.getHorasParaDesconto()*3600;
-        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), 2).intValue();
+        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto),  RoundingMode.DOWN).intValue();
         int totalHorasEstacionadasCondutor = BigDecimal.valueOf(tempoPagoSegundos).add(BigDecimal.valueOf(tempoMovSegundos)).intValue();
-        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto), 2).intValue();
+        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.HALF_UP).intValue();
 
         // Se as novas horas pagas vão gerar desconto
         if (multiplicadorProximo  > multiplicadorAtual) {
@@ -228,10 +228,10 @@ public class MovimentacaoService {
 
         // -------------------------------------------------------------------
         // CALCULA VALOR TOTAL
-        final BigDecimal valorHoraSemDesconto = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos()).divide(BigDecimal.valueOf(3600), 2));
+        final BigDecimal valorHoraSemDesconto = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos()).divide(BigDecimal.valueOf(3600), RoundingMode.CEILING));
 
 
-        final BigDecimal valorHoraEstacionadaFinal = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2));
+        final BigDecimal valorHoraEstacionadaFinal = valorHora.multiply(BigDecimal.valueOf(movimentacao.getTempoEstacionadoSegundos() - movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), RoundingMode.CEILING));
 
         final BigDecimal valorTotal = valorMulta.add(valorHoraEstacionadaFinal);
         final BigDecimal valorTotalSemDesconto = valorMulta.add(valorHoraSemDesconto);
@@ -244,7 +244,7 @@ public class MovimentacaoService {
         final Integer horasEstacionadasComprovante = tempoEstacionadoHoras.intValue();
         final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
 
-        final BigDecimal tempoDescontoHoras = new BigDecimal(movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2);
+        final BigDecimal tempoDescontoHoras = new BigDecimal(movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), RoundingMode.HALF_UP);
         final Integer horasDescontoomprovante = tempoDescontoHoras.intValue();
         final Integer minutosDescontoComprovante= tempoDescontoHoras.subtract(BigDecimal.valueOf(horasDescontoomprovante)).multiply(BigDecimal.valueOf(60)).intValue();
 
