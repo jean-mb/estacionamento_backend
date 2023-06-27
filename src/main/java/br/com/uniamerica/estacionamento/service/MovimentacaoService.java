@@ -44,7 +44,9 @@ public class MovimentacaoService {
 
         final List<Movimentacao> isEstacionado = this.movimentacaoRepository.getEstacionado(veiculo.getId());
         Assert.isTrue(isEstacionado.isEmpty(), String.format("O veiculo [ %s ] já está estacionado no momento", veiculo.getPlaca()));
-
+        if(movimentacao.getDataSaida() != null){
+            Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
+        }
         return this.movimentacaoRepository.save(movimentacao);
     }
 
@@ -78,6 +80,9 @@ public class MovimentacaoService {
         Assert.isTrue(condutor.isAtivo(), String.format("Condutor [ %s ] está desativado!", condutor.getNome()));
         Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
 
+        if(movimentacao.getDataSaida() != null){
+            Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
+        }
 
         String resposta;
         if (movimentacao.getDataSaida() != null){
