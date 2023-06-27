@@ -44,6 +44,20 @@ public class MovimentacaoService {
 
         final List<Movimentacao> isEstacionado = this.movimentacaoRepository.getEstacionado(veiculo.getId());
         Assert.isTrue(isEstacionado.isEmpty(), String.format("O veiculo [ %s ] já está estacionado no momento", veiculo.getPlaca()));
+
+        final Tipo tipo = veiculo.getTipo();
+        final List<Movimentacao> vagas = this.movimentacaoRepository.getVagas(tipo);
+
+        if(tipo.name().equals("CARRO")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdCarro(), "Não há mais vagas de carros");
+        }
+        if(tipo.name().equals("MOTO")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdMoto(), "Não há mais vagas de moto");
+        }
+        if(tipo.name().equals("VAN")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdCarro(), "Não há mais vagas de van");
+        }
+
         if(movimentacao.getDataSaida() != null){
             Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
         }
@@ -55,6 +69,7 @@ public class MovimentacaoService {
         /*
          * Verifica se a movimentação existe
          */
+        final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
         final Movimentacao movimentacaoBanco = this.movimentacaoRepository.findById(id).orElse(null);
         Assert.notNull(movimentacaoBanco, "Movimentação não existe!");
 
@@ -83,7 +98,17 @@ public class MovimentacaoService {
         if(movimentacao.getDataSaida() != null){
             Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
         }
-
+        final Tipo tipo = veiculo.getTipo();
+        final List<Movimentacao> vagas = this.movimentacaoRepository.getVagas(tipo);
+        if(tipo.name().equals("CARRO")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdCarro(), "Não há mais vagas de carros");
+        }
+        if(tipo.name().equals("MOTO")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdMoto(), "Não há mais vagas de moto");
+        }
+        if(tipo.name().equals("VAN")){
+            Assert.isTrue(vagas.size() < configuracao.getQntdCarro(), "Não há mais vagas de van");
+        }
         String resposta;
         if (movimentacao.getDataSaida() != null){
             resposta = fecharMovimentacao(movimentacao);
