@@ -164,12 +164,13 @@ public class MovimentacaoService {
         // CALCULA DESCONTO
 
 
+        assert condutor != null;
         long tempoPagoSegundos = condutor.getTempoPagoSegundos();
         long tempoMovSegundos = movimentacao.getTempoEstacionadoSegundos();
         long tempoParaDesconto = configuracao.getHorasParaDesconto()*3600;
-        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto),  RoundingMode.DOWN).intValue();
+        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.DOWN).intValue();
         int totalHorasEstacionadasCondutor = BigDecimal.valueOf(tempoPagoSegundos).add(BigDecimal.valueOf(tempoMovSegundos)).intValue();
-        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.HALF_UP).intValue();
+        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.DOWN).intValue();
 
         // Se as novas horas pagas vão gerar desconto
         if (multiplicadorProximo  > multiplicadorAtual) {
