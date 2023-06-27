@@ -272,18 +272,18 @@ public class MovimentacaoService {
 
         String resposta = String.format(
                 "\t\tMovimentação [ %s ] fechada! \n" +
-                        "  ---------------------------------------\n\n" +
-                        "\t\t\t Comprovante:\n\n" +
-                        "\t\tMovimentação número [ %s ]\n\n" +
+                        "  ---------------------------------------------------\n\n" +
+                        "\t\t\t\t  Comprovante:\n\n" +
+                        "\t\t\t\tMovimentação [ %s ]\n\n" +
                         "\tCondutor:  %s \n" +
                         "\tVeículo:  %s -  %s \n\n" +
-                        "\t------------------------------\n\n" +
+                        "  ---------------------------------------------------\n\n" +
                         "\tHorário de Entrada: %s\n" +
                         "\tHorário de Saída: %s\n\n" +
                         "\tTempo de Multa: %s minutos \n" +
                         "\tTempo Total Estacionado: %s \n" +
                         "\tTempo Descontado: %s \n\n" +
-                        "\t------------------------------\n\n" +
+                        "  ---------------------------------------------------\n\n" +
                         "\tValor da Multa: R$ %s\n" +
                         "\tValor da Hora Estacionada: R$ %s\n" +
                         "\tValor Total: R$ %s \n" +
