@@ -30,11 +30,8 @@ public class MovimentacaoService {
 
 
     @Transactional
-    public ResponseEntity<?> novaMovimentacao(final Movimentacao movimentacao){
+    public Movimentacao novaMovimentacao(final Movimentacao movimentacao){
 
-        if (movimentacao.getDataEntrada() == null){
-            movimentacao.setDataEntrada(LocalDateTime.now());
-        }
         final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
         Assert.notNull(configuracao, "Sistema não está configurado! Faça as configurações antes de abrir uma movimentação");
 
@@ -48,10 +45,7 @@ public class MovimentacaoService {
         final List<Movimentacao> isEstacionado = this.movimentacaoRepository.getEstacionado(veiculo.getId());
         Assert.isTrue(isEstacionado.isEmpty(), String.format("O veiculo [ %s ] já está estacionado no momento", veiculo.getPlaca()));
 
-        Movimentacao novaMovimentacao = this.movimentacaoRepository.save(movimentacao);
-        Assert.notNull(novaMovimentacao, "Não foi possível criar  movimentação");
-        String resposta = String.format("Movimentação [ %s ] aberta com sucesso!", novaMovimentacao.getId());
-        return ResponseEntity.ok(resposta);
+        return this.movimentacaoRepository.save(movimentacao);
     }
 
     @Transactional
@@ -123,7 +117,7 @@ public class MovimentacaoService {
         //      -------------------------------------------------------------------
         //      CALCULA TEMPO MULTA
 
-        long multaSegundos = 0;
+        long  multaSegundos = 0;
 
         final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
         long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();

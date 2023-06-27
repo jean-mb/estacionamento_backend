@@ -18,6 +18,7 @@ import java.time.LocalTime;
 @Table(name = "movimentacoes", schema = "public")
 public class Movimentacao extends AbstractEntity {
     @Getter @Setter
+    @NotNull(message = "Informe a Data de Entrada")
     @Column(name = "data_entrada", nullable = false)
     private LocalDateTime dataEntrada;
 
