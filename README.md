@@ -1,5 +1,5 @@
-# Gestão de Estacionamento | API & orm
-- API de sistema  para gestão de estacionamento, desenvolvido em ambiente acadêmico. Disponibiliza o CRUD completo de todoas as entidades
+# Gestão de Estacionamento | API & ORM
+- API de sistema para gestão de estacionamento, desenvolvido em ambiente acadêmico. Disponibiliza o CRUD completo de todoas as entidades
 - Autor: Jean Felipe Moschen Buss
 
 ## Índice
