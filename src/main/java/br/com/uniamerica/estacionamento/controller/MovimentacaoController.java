@@ -36,7 +36,8 @@ public class MovimentacaoController {
     @PostMapping("/nova")
     public ResponseEntity<?> novaMovimentacao(@RequestBody @Validated final Movimentacao movimentacao){
         try {
-            return this.movimentacaoService.novaMovimentacao(movimentacao);
+            final Movimentacao novaMovimentacao = this.movimentacaoService.novaMovimentacao(movimentacao);
+            return ResponseEntity.ok(novaMovimentacao);
         } catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

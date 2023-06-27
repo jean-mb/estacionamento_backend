@@ -30,11 +30,8 @@ public class MovimentacaoService {
 
 
     @Transactional
-    public ResponseEntity<?> novaMovimentacao(final Movimentacao movimentacao){
+    public Movimentacao novaMovimentacao(final Movimentacao movimentacao){
 
-        if (movimentacao.getDataEntrada() == null){
-            movimentacao.setDataEntrada(LocalDateTime.now());
-        }
         final Configuracao configuracao = this.configuracaoRepository.getConfiguracao();
         Assert.notNull(configuracao, "Sistema não está configurado! Faça as configurações antes de abrir uma movimentação");
 
@@ -47,11 +44,10 @@ public class MovimentacaoService {
 
         final List<Movimentacao> isEstacionado = this.movimentacaoRepository.getEstacionado(veiculo.getId());
         Assert.isTrue(isEstacionado.isEmpty(), String.format("O veiculo [ %s ] já está estacionado no momento", veiculo.getPlaca()));
-
-        Movimentacao novaMovimentacao = this.movimentacaoRepository.save(movimentacao);
-        Assert.notNull(novaMovimentacao, "Não foi possível criar  movimentação");
-        String resposta = String.format("Movimentação [ %s ] aberta com sucesso!", novaMovimentacao.getId());
-        return ResponseEntity.ok(resposta);
+        if(movimentacao.getDataSaida() != null){
+            Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
+        }
+        return this.movimentacaoRepository.save(movimentacao);
     }
 
     @Transactional
@@ -84,6 +80,9 @@ public class MovimentacaoService {
         Assert.isTrue(condutor.isAtivo(), String.format("Condutor [ %s ] está desativado!", condutor.getNome()));
         Assert.isTrue(veiculo.isAtivo(), String.format("Veiculo [ %s ] está desativado!", veiculo.getPlaca()));
 
+        if(movimentacao.getDataSaida() != null){
+            Assert.isTrue(movimentacao.getDataEntrada().isBefore(movimentacao.getDataSaida()), "A Data de Saída não pode ser anterior a Data de Entrada!");
+        }
 
         String resposta;
         if (movimentacao.getDataSaida() != null){
@@ -123,7 +122,7 @@ public class MovimentacaoService {
         //      -------------------------------------------------------------------
         //      CALCULA TEMPO MULTA
 
-        long multaSegundos = 0;
+        long  multaSegundos = 0;
 
         final long ano = movimentacao.getDataSaida().getYear() - movimentacao.getDataEntrada().getYear();
         long dias = movimentacao.getDataSaida().getDayOfYear() - movimentacao.getDataEntrada().getDayOfYear();
@@ -168,9 +167,9 @@ public class MovimentacaoService {
         long tempoPagoSegundos = condutor.getTempoPagoSegundos();
         long tempoMovSegundos = movimentacao.getTempoEstacionadoSegundos();
         long tempoParaDesconto = configuracao.getHorasParaDesconto()*3600;
-        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), RoundingMode.DOWN).intValue();
+        int multiplicadorAtual = BigDecimal.valueOf(tempoPagoSegundos).divide(BigDecimal.valueOf(tempoParaDesconto), 2).intValue();
         int totalHorasEstacionadasCondutor = BigDecimal.valueOf(tempoPagoSegundos).add(BigDecimal.valueOf(tempoMovSegundos)).intValue();
-        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto)).intValue();
+        int multiplicadorProximo = BigDecimal.valueOf(totalHorasEstacionadasCondutor).divide(BigDecimal.valueOf(tempoParaDesconto), 2).intValue();
 
         // Se as novas horas pagas vão gerar desconto
         if (multiplicadorProximo  > multiplicadorAtual) {
@@ -245,7 +244,7 @@ public class MovimentacaoService {
         final Integer horasEstacionadasComprovante = tempoEstacionadoHoras.intValue();
         final Integer minutosEstacionadosComprovante= tempoEstacionadoHoras.subtract(BigDecimal.valueOf(horasEstacionadasComprovante)).multiply(BigDecimal.valueOf(60)).intValue();
 
-        final BigDecimal tempoDescontoHoras = new BigDecimal(movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        final BigDecimal tempoDescontoHoras = new BigDecimal(movimentacao.getTempoDescontoSegundos()).divide(BigDecimal.valueOf(3600), 2);
         final Integer horasDescontoomprovante = tempoDescontoHoras.intValue();
         final Integer minutosDescontoComprovante= tempoDescontoHoras.subtract(BigDecimal.valueOf(horasDescontoomprovante)).multiply(BigDecimal.valueOf(60)).intValue();
 
