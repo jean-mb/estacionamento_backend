@@ -1,6 +1,7 @@
 package br.com.uniamerica.estacionamento.controller;
 
 import br.com.uniamerica.estacionamento.entity.Movimentacao;
+import br.com.uniamerica.estacionamento.entity.Tipo;
 import br.com.uniamerica.estacionamento.repository.MovimentacaoRepository;
 import br.com.uniamerica.estacionamento.service.MovimentacaoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,10 @@ public class MovimentacaoController {
     @GetMapping("/lista/abertas")
     public ResponseEntity<?> listarAbertas(){
         return ResponseEntity.ok(this.movimentacaoRepository.findAllAbertas());
+    }
+    @GetMapping("/lista/vagas")
+    public ResponseEntity<?> getVagas(@RequestParam("tipo") final Tipo tipo){
+        return ResponseEntity.ok(this.movimentacaoRepository.getVagas(tipo));
     }
 
     @PostMapping("/nova")
