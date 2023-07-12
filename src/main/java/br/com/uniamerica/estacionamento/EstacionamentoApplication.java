@@ -13,9 +13,9 @@ public class EstacionamentoApplication {
 	}
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**")
-				.allowedOrigins("http://localhost:4000")
-				.allowedMethods("GET", "POST", "PUT", "DELETE")
-				.allowedHeaders("Content-Type")
+				.allowedOrigins("*")
+				.allowedMethods("*")
+				.allowedHeaders("*")
 				.allowCredentials(true);
 	}
 }

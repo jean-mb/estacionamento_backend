@@ -12,8 +12,6 @@ import org.hibernate.envers.Audited;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 @Entity
-@Audited
-@AuditTable(value = "configuracoes_audit", schema = "audit")
 @Table(name = "configuracoes", schema = "public")
 public class Configuracao extends AbstractEntity {
     @Getter @Setter
