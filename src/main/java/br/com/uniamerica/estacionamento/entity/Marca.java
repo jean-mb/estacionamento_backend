@@ -12,8 +12,6 @@ import org.hibernate.envers.Audited;
 import org.hibernate.validator.constraints.Length;
 
 @Entity
-@Audited
-@AuditTable(value = "marcas_audit", schema = "audit")
 @Table(name = "marcas", schema = "public")
 public class Marca extends AbstractEntity{
     @NotNull(message = "Informe o nome da marca!")

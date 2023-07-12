@@ -14,8 +14,6 @@ import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalTime;
 @Entity
-@Audited
-@AuditTable(value = "condutores_audit", schema = "audit")
 @Table(name = "condutores", schema = "public")
 public class Condutor extends AbstractEntity {
     @NotNull(message = "Nome do condutor precisa ser informado")
