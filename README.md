@@ -8,6 +8,7 @@
 - [Tecnologias](#tecnologias)
 - [Requisitos para Desenvolvimento](#requisitos-para-desenvolvimento)
 - [Configuração PostgreSQL](#configuração-postgresql)
+- [Deploy em Docker-Compose](#deploy-em-docker-compose)
 
 ## Principais funções
 
@@ -36,3 +37,59 @@
 ## Configuração PostgreSQL
 
 Toda a configuração do Banco de Dados é feita no arquivo `application.properties`
+
+## Deploy em Docker-Compose
+Para fazer deploy da stack inteira, ou seja: 
+- Este repositório
+- O repositório [Estacionamento Front-end](https://github.com/jean-mb/estacionamento_frontend)
+- Banco de Dados [PostgreSQL](https://hub.docker.com/_/postgres),
+ 
+Execute o seguinte docker-compose:
+
+```
+version: '3'
+name: estacionamento
+services:
+  frontend:
+    image: ghcr.io/jean-mb/estacionamento_frontend:main
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - estacionamento
+  backend:
+    image: ghcr.io/jean-mb/estacionamento_backend:main
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - estacionamento
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=estacionamento
+    volumes:
+      - ~/estacionamento-db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - estacionamento
+networks:
+  estacionamento:
+    name: estacionamento
+    ipam:
+      driver: default
+```
+Esse repositório, conforme apontado no [Dockerfile](https://github.com/jean-mb/estacionamento_backend/blob/main/Dockerfile) será compilado e servido por Nginx, com um Proxy para a URL do servidor backend.
+
+A aplicação ficará disponivel:
+- UI / Frontend = Porta 80
+- Aplicação Backend = Porta 8080
+- Banco de Dados PostgreSQL = Porta 5432
