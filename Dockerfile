@@ -5,6 +5,9 @@ ENV DB_PWD=postgres
 ENV DB_USER=postgres
 ENV DB_NAME=estacionamento
 ENV DB_PORT=5432
+ENV DB_HOST=postgres
+ENV DDL=create-drop
+
 RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests
 
 FROM eclipse-temurin:19-jdk
