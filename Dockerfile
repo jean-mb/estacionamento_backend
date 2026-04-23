@@ -7,7 +7,7 @@ ENV DB_NAME=estacionamento
 ENV DB_PORT=5432
 RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests
 
-FROM openjdk:19-alpine
+FROM eclipse-temurin:19-jdk
 COPY --from=build /usr/src/app/target/*.jar /usr/app/estacionamento-1.0.0-SNAPSHOT.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/usr/app/estacionamento-1.0.0-SNAPSHOT.jar"]
